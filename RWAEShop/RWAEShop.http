@@ -1,0 +1,6 @@
+@RWAEShop_HostAddress = http://localhost:5194
+
+GET {{RWAEShop_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
