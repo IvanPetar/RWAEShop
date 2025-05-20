@@ -1,7 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using RWAEShop.Models;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers().AddJsonOptions(x =>
+  x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 
 // Add services to the container.
 

@@ -2,11 +2,10 @@
 
 namespace RWAEShop.DTOs
 {
-    public class CountryResponseDto
+    public class CategoryResponseDto
     {
         public int Id { get; set; }
         [Required]
-        public string Name { get; set;}
-
+        public string Name { get; set; }
     }
 }

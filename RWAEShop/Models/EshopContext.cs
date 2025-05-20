@@ -23,8 +23,6 @@ public partial class EshopContext : DbContext
 
     public virtual DbSet<OrderItem> OrderItems { get; set; }
 
-    public virtual DbSet<Payment> Payments { get; set; }
-
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<ProductCategory> ProductCategories { get; set; }
@@ -76,15 +74,6 @@ public partial class EshopContext : DbContext
             entity.HasOne(d => d.Product).WithMany(p => p.OrderItems)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__OrderItem__Produ__4E88ABD4");
-        });
-
-        modelBuilder.Entity<Payment>(entity =>
-        {
-            entity.HasKey(e => e.IdPayment).HasName("PK__Payment__613289C02BEB21B2");
-
-            entity.HasOne(d => d.Order).WithMany(p => p.Payments)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Payment__OrderId__4AB81AF0");
         });
 
         modelBuilder.Entity<Product>(entity =>
