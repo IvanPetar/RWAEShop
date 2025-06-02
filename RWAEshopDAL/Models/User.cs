@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace RWAEShop.Models;
+namespace RWAEshopDAL.Models;
 
 [Table("User")]
 [Index("Email", Name = "UQ__User__A9D10534DACF61DB", IsUnique = true)]
@@ -32,6 +32,9 @@ public partial class User
     public string? Phone { get; set; }
 
     public int RoleId { get; set; }
+
+    [StringLength(100)]
+    public string Username { get; set; } = null!;
 
     [InverseProperty("User")]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();

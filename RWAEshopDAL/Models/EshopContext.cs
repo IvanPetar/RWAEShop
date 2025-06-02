@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
-namespace RWAEShop.Models;
+namespace RWAEshopDAL.Models;
 
 public partial class EshopContext : DbContext
 {

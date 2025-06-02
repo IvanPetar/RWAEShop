@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RWAEShop.DTOs;
-using RWAEShop.Models;
+using RWAEshopDAL.Models;
+using RWAEshopDAL.Services;
+using AutoMapper;
 
 namespace RWAEShop.Controllers
 {
@@ -10,37 +12,52 @@ namespace RWAEShop.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly EshopContext _context;
+        private readonly IProductService _service;
+        private readonly IMapper _mapper;
 
-        public ProductController(EshopContext context)
+        public ProductController(IProductService service, IMapper mapper)
         {
-            _context = context;
+            _service = service;
+            _mapper = mapper;
         }
-
 
         [HttpGet]
         public ActionResult<IEnumerable<ProductResponseDto>> GetAllProducts([FromQuery] int? categoryId)
         {
             try
             {
-                var product = _context.Products
-                    .Include(c => c.Category)
-                    .Where(c => !categoryId.HasValue || c.CategoryId == categoryId.Value)
-                    .Select(p => new ProductResponseDto
-                    {
-                        Name = p.Name,
-                        Description = p.ProductDescription,
-                        Price = p.Price,
-                        ImageUrl = p.ImageUrl
-                        
-                    }).ToList();
+                var product = _service.GetAllProducts();
 
-                if (!product.Any()) 
+                if (categoryId != null)
+                    product = product.Where(p => p.CategoryId == categoryId.Value);
+
+                var dtos = product.Select(p =>
+                {
+                    var dto = _mapper.Map<ProductResponseDto>(p);
+                    dto.CountryNames = p.CountryProducts
+                    .Select(cp => cp.Country.Name)
+                    .ToList();
+                    return dto;
+                }).ToList();
+
+                //.Include(c => c.Category)
+                //.Where(c => !categoryId.HasValue || c.CategoryId == categoryId.Value)
+                //.Select(p => new ProductResponseDto
+                //{
+                //    Name = p.Name,
+                //    Description = p.ProductDescription,
+                //    Price = p.Price,
+                //    ImageUrl = p.ImageUrl,
+                //    CountryNames = p.CountryProducts.Select(cp => cp.Country.Name).ToList()
+
+                //}).ToList();
+
+                if (!dtos.Any())
                 {
                     return NotFound("Did not found any product");
                 }
 
-                return Ok(product);
+                return Ok(dtos);
             }
             catch (Exception ex)
             {
@@ -51,20 +68,19 @@ namespace RWAEShop.Controllers
 
 
         [HttpGet("{id}")]
-        public ActionResult<ProductResponseDto> GetProductById(int id) 
+        public ActionResult<ProductResponseDto> GetProductById(int id)
         {
             try
             {
-                var product = _context.Products
-                    .Include(c => c.Category)
-                    .FirstOrDefault(c => c.IdProduct == id);
-    
-                if (product == null) 
-                {
-                    return NotFound();    
-                }
+                var product = _service.GetProduct(id);
+                if (product == null)
+                    return NotFound();
 
-                return Ok(product);
+                var dto = _mapper.Map<ProductResponseDto>(product);
+                dto.CountryNames = product.CountryProducts.
+                    Select(cp => cp.Country.Name).ToList();
+
+                return Ok(dto);
             }
             catch (Exception ex)
             {
@@ -76,27 +92,60 @@ namespace RWAEShop.Controllers
         [HttpPost]
         public ActionResult<ProductCreateDto> CreateProduct([FromBody] ProductCreateDto dto)
         {
-            if (dto == null) 
+            if (dto == null)
             {
                 return BadRequest("Invalid data");
             }
 
             try
             {
-                var product = new Product
-                {
-                    Name = dto.Name,
-                    ProductDescription = dto.Description,
-                    Price = dto.Price,
-                    Quantity = dto.Quantity,
-                    ImageUrl = dto.ImageUrl,
-                    CategoryId = dto.CategoryId
-                };
+                var product = _mapper.Map<Product>(dto);
 
-                _context.Products.Add(product);
-                _context.SaveChanges();
+                product.CountryProducts = dto.CountryId
+                    .Select(countryId => new CountryProduct { CountryId = countryId })
+                    .ToList();
 
-                return CreatedAtAction(nameof(GetAllProducts), new {id = product.IdProduct}, product);
+                _service.CreateProduct(product);
+
+                //var responseDto = _mapper.Map<ProductResponseDto>(product);
+                //responseDto.CountryNames = product.CountryProducts
+                //    .Select(cp=>cp.Country != null ? cp.Country.Name : null)
+                //    .Where(name => name != null)
+                //    .ToList();
+
+
+                //var product = _mapper.Map<Product>(dto);
+
+                //            // Ovdje moraš postaviti CountryProducts iz CountryId liste iz DTO-a
+                //            product.CountryProducts = dto.CountryId
+                //                .Select(countryId => new CountryProduct { CountryId = countryId })
+                //                .ToList();
+
+                //            _productService.CreateProduct(product);
+
+                //            var responseDto = _mapper.Map<ProductResponseDto>(product);
+                //            responseDto.CountryNames = product.CountryProducts?
+                //                .Select(cp => cp.Country?.Name)
+                //                .Where(name => name != null)
+                //                .ToList() ?? new List<string>();
+
+                //var product = new Product
+                //{
+                //    Name = dto.Name,
+                //    ProductDescription = dto.Description,
+                //    Price = dto.Price,
+                //    Quantity = dto.Quantity,
+                //    ImageUrl = dto.ImageUrl,
+                //    CategoryId = dto.CategoryId,
+                //    CountryProducts = dto.CountryId
+                //        .Select(countryId => new CountryProduct { CountryId = countryId })
+                //        .ToList()
+                //};
+
+                //_context.Products.Add(product);
+                //_context.SaveChanges();
+
+                return CreatedAtAction(nameof(GetAllProducts), new { id = product.IdProduct }, dto);
             }
             catch (Exception ex)
             {
@@ -107,24 +156,27 @@ namespace RWAEShop.Controllers
 
         [HttpPut("{id}")]
 
-        public ActionResult<ProductUpdateDto> UpdateProduct(int id, [FromBody] ProductUpdateDto dto) 
+        public ActionResult<ProductUpdateDto> UpdateProduct(int id, [FromBody] ProductUpdateDto dto)
         {
             try
             {
-                var product = _context.Products.FirstOrDefault(c=> c.IdProduct == id);
+                var product = _service.GetProduct(id);
                 if (product == null)
                 {
                     return NotFound("Did not found product by that Id");
                 }
-                product.Name = dto.Name;
-                product.ProductDescription = dto.Description;
-                product.Price = dto.Price;
-                product.Quantity = dto.Quantity;
-                product.ImageUrl = dto.ImageUrl;
-                product.CategoryId = dto.CategoryId;
 
-                _context.SaveChanges();
-                return Ok(product);
+                _mapper.Map(dto, product);
+                _service.UpdateProduct(product);
+
+
+                var responseDto = _mapper.Map<ProductResponseDto>(product);
+                responseDto.CountryNames = product.CountryProducts
+                .Select(cp => cp.Country.Name)
+                .Where(name => name != null)
+                .ToList();
+
+                return Ok(dto);
             }
             catch (Exception ex)
             {
@@ -132,25 +184,71 @@ namespace RWAEShop.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
-        public ActionResult<ProductResponseDto> DeleteProduct(int id) 
-        {
-            try
-            {
-                var product = _context.Products.FirstOrDefault(c => c.IdProduct == id);
-                if (product == null)
-                {
-                    return NotFound();
-                }
+        //[HttpDelete("{id}")]
+        //public ActionResult<ProductResponseDto> DeleteProduct(int id)
+        //{
+        //    try
+        //    {
+        //        var product = _context.Products.FirstOrDefault(c => c.IdProduct == id);
+        //        if (product == null)
+        //        {
+        //            return NotFound();
+        //        }
 
-                _context.Products.Remove(product);
-                _context.SaveChanges();
-                return Ok(product);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An error occurred while deleting product: {ex.Message}");
-            }
-        }
+        //        _context.Products.Remove(product);
+        //        _context.SaveChanges();
+        //        return Ok(product);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"An error occurred while deleting product: {ex.Message}");
+        //    }
+        //}
     }
 }
+
+//    [HttpPut("{id}")]
+//    public ActionResult<ProductResponseDto> UpdateProduct(int id, [FromBody] ProductUpdateDto dto)
+//    {
+//        try
+//        {
+//            var product = _productService.GetProduct(id);
+//            if (product == null)
+//                return NotFound("Did not find product by that Id");
+
+//            _mapper.Map(dto, product);
+
+//            _productService.UpdateProduct(product);
+
+//            var responseDto = _mapper.Map<ProductResponseDto>(product);
+//            responseDto.CountryNames = product.CountryProducts?
+//                .Select(cp => cp.Country?.Name)
+//                .Where(name => name != null)
+//                .ToList() ?? new List<string>();
+
+//            return Ok(responseDto);
+//        }
+//        catch (Exception ex)
+//        {
+//            return StatusCode(500, $"An error occurred while updating product: {ex.Message}");
+//        }
+//    }
+
+//    [HttpDelete("{id}")]
+//    public IActionResult DeleteProduct(int id)
+//    {
+//        try
+//        {
+//            var product = _productService.GetProduct(id);
+//            if (product == null)
+//                return NotFound();
+
+//            _productService.DeleteProduct(id);
+//            return NoContent();
+//        }
+//        catch (Exception ex)
+//        {
+//            return StatusCode(500, $"An error occurred while deleting product: {ex.Message}");
+//        }
+//    }
+//}

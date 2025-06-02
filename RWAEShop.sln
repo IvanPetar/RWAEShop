@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RWAEShop", "RWAEShop\RWAEShop.csproj", "{DAA3BFD5-B2B6-4B8E-941F-378E3869F334}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RWAEshopDAL", "RWAEshopDAL\RWAEshopDAL.csproj", "{BAA97166-5F56-4EA9-8402-3CDCF2616403}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{DAA3BFD5-B2B6-4B8E-941F-378E3869F334}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAA3BFD5-B2B6-4B8E-941F-378E3869F334}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAA3BFD5-B2B6-4B8E-941F-378E3869F334}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAA97166-5F56-4EA9-8402-3CDCF2616403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAA97166-5F56-4EA9-8402-3CDCF2616403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAA97166-5F56-4EA9-8402-3CDCF2616403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAA97166-5F56-4EA9-8402-3CDCF2616403}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

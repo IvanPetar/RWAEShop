@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RWAEShop.DTOs;
-using RWAEShop.Models;
+using RWAEshopDAL.Models;
+using RWAEshopDAL.Services;
+using AutoMapper;
 
 namespace RWAEShop.Controllers
 {
@@ -10,11 +12,15 @@ namespace RWAEShop.Controllers
     [ApiController]
     public class CountryController : ControllerBase
     {
-        private readonly EshopContext _context;
+       private readonly ICountryService _countryService;
+       private readonly IProductService _service;
+       private readonly IMapper _mapper;
 
-        public CountryController(EshopContext context)
+        public CountryController(ICountryService countryService, IProductService service,IMapper mapper)
         {
-            _context = context;
+            _countryService = countryService;
+            _service = service;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -23,12 +29,8 @@ namespace RWAEShop.Controllers
         {
             try
             {
-                var country = _context.Countries
-                        .Select(c => new CountryResponseDto
-                        {
-                            Id = c.IdCountry,
-                            Name = c.Name
-                        }).ToList();
+                var country = _countryService.GetAllCountry()
+                        .Select(c => _mapper.Map<CountryResponseDto>(c)).ToList();
 
 
                 return Ok(country);
@@ -41,19 +43,18 @@ namespace RWAEShop.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<IEnumerable<CountryResponseDto>> GetAllCountrieById(int id)
+        public ActionResult<IEnumerable<CountryResponseDto>> GetAllCountriesById(int id)
         {
             try
             {
-                var country = _context.Countries
-                        .FirstOrDefault(x => x.IdCountry == id);
+                var country = _countryService.GetCountry(id);
 
                 if (country == null)
                 {
 
                     return NotFound("Did not found any country by that id");
                 }
-
+                var mappedCountry = _mapper.Map<CountryResponseDto>(country);
                 return Ok(country);
             }
             catch (Exception ex)
@@ -66,6 +67,8 @@ namespace RWAEShop.Controllers
         [HttpPost]
         public ActionResult<CreateCountryDto> CreateCountry([FromBody] CreateCountryDto dto)
         {
+           
+            var country = _mapper.Map<Country>(dto);
             if (dto == null)
             {
                 return BadRequest("Invalid data");
@@ -74,15 +77,9 @@ namespace RWAEShop.Controllers
             try
             {
 
-                var country = new Country
-                {
-                    Name = dto.Name
-                };
+                _countryService.CreateCountry(country);
 
-                _context.Countries.Add(country);
-                _context.SaveChanges();
-
-                return CreatedAtAction(nameof(GetAllCountrieById), new { id = country.IdCountry}, country);
+                return CreatedAtAction(nameof(GetAllCountriesById), new { id = country.IdCountry}, country);
             }
             catch (Exception ex)
             {
@@ -98,17 +95,19 @@ namespace RWAEShop.Controllers
 
         public ActionResult<CountryUpdateDto> UpdateCountry(int id, [FromBody] CountryUpdateDto dto) 
         {
+           
             try
             {
-                var country = _context.Countries.FirstOrDefault(c => c.IdCountry == id);
+                var country = _countryService.GetCountry(id);
                 if (country == null) 
                 {
                     return NotFound("Did not found any country");
                 }
 
-                country.Name = dto.Name;
-                _context.SaveChanges();
-                return Ok(country);
+                _mapper.Map(dto, country);
+                _countryService.UpdateCountry(country);
+                var updateDto = _mapper.Map<CountryUpdateDto>(country);
+                return Ok(updateDto);
             }
             catch (Exception ex)
             {
@@ -124,21 +123,21 @@ namespace RWAEShop.Controllers
         {
             try
             {
-                var country = _context.Countries.FirstOrDefault(c => c.IdCountry == id);
+                var country = _countryService.GetCountry(id);
                 if (country == null)
                 {
                     return NotFound("Did not found any country");
                 }
 
-                var hasProduct = _context.Products.Any(p=>p.IdProduct == id);
-                if (hasProduct) 
+                var products = _service.GetCountriesforProductes(id);
+                if (products.Any()) 
                 {
                     return BadRequest("Cannot delete any Country which Products came form that country");
                 }
 
-                _context.Countries.Remove(country);
-                _context.SaveChanges();
-                return Ok(country);
+                _countryService.DeleteCountry(id);
+                var dto = _mapper.Map<CountryResponseDto>(country);
+                return Ok(dto);
             }
             catch (Exception ex)
             {

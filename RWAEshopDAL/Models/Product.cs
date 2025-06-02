@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace RWAEShop.Models;
+namespace RWAEshopDAL.Models;
 
 [Table("Product")]
 public partial class Product

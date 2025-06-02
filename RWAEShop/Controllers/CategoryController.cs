@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RWAEShop.DTOs;
-using RWAEShop.Models;
+using RWAEshopDAL.Models;
+using RWAEshopDAL.Services;
+using AutoMapper;
 
 namespace RWAEShop.Controllers
 {
@@ -9,25 +11,26 @@ namespace RWAEShop.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly EshopContext _context;
+        private readonly ICategoryService _categoryService;
+        private readonly IProductService _service;
+        private readonly IMapper _mapper;
 
-        public CategoryController(EshopContext context)
+        public CategoryController(ICategoryService categoryService, IProductService service, IMapper mapper)
         {
-            _context = context;
+            _categoryService = categoryService;
+            _service = service;
+            _mapper = mapper;
         }
 
-        
         [HttpGet]
         public ActionResult<IEnumerable<CategoryResponseDto>> GetAllCategories()
         {
             try
             {
-                var categories = _context.ProductCategories
-                    .Select(p => new CategoryResponseDto 
-                    {
-                        Id = p.IdCategory,
-                        Name = p.Name
-                    }).ToList();
+                var categories = _categoryService.GetAllCategory()
+                    .Select(p =>
+                    _mapper.Map<CategoryResponseDto>(p)
+                    ).ToList();
 
                 return Ok(categories);
             }
@@ -43,13 +46,14 @@ namespace RWAEShop.Controllers
         {
             try
             {
-                var category = _context.ProductCategories.FirstOrDefault(c => c.IdCategory == id);
+                var category = _categoryService.GetCategory(id);
                 if (category == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(category);
+                var mappedCategory = _mapper.Map<CategoryResponseDto>(category);
+                return Ok(mappedCategory);
 
             }
             catch (Exception ex)
@@ -61,6 +65,7 @@ namespace RWAEShop.Controllers
         [HttpPost]
         public ActionResult CreateCategory([FromBody] CategoryCreateDto dto)
         {
+            var category = _mapper.Map<ProductCategory>(dto);
             if (dto == null)
             {
                 return BadRequest("Invalid category data.");
@@ -69,15 +74,9 @@ namespace RWAEShop.Controllers
             try
             {
 
-                var category = new ProductCategory
-                {
-                    Name = dto.Name
-                };
+                _categoryService.CreateCategory(category);
 
-                _context.ProductCategories.Add(category);
-                _context.SaveChanges();
-
-                return CreatedAtAction(nameof(GetCategoriesById), new { id = category.IdCategory}, category);
+                return CreatedAtAction(nameof(GetCategoriesById), new { id = category.IdCategory}, dto);
             }
             catch (Exception ex)
             {
@@ -92,14 +91,19 @@ namespace RWAEShop.Controllers
         {
             try
             {
-                var category = _context.ProductCategories.FirstOrDefault(c => c.IdCategory == id);
+                var category = _categoryService.GetCategory(id);
                 if (category == null)
                 {
                     return NotFound();
                 }
-                category.Name = dto.Name;
-                _context.SaveChanges();
-                return Ok(category);
+
+                _mapper.Map(dto, category);
+
+                _categoryService.UpdateCategory(category);
+
+                var updateDto = _mapper.Map<CategoryUpdateDto>(category);
+
+                return Ok(dto);
             }
             catch (Exception ex)
             {
@@ -107,28 +111,31 @@ namespace RWAEShop.Controllers
             }
         }
 
-       
+
         [HttpDelete("{id}")]
         public ActionResult<CategoryUpdateDto> DeleteCategory(int id)
         {
             try
             {
-                var category = _context.ProductCategories.FirstOrDefault(c => c.IdCategory == id);
+                var category = _categoryService.GetCategory(id);
                 if (category == null)
                 {
                     return NotFound();
                 }
 
-                var hasItems = _context.Products.Any(p => p.IdProduct == id);
-                if (hasItems)
+
+
+                //var hasItems = _context.Products.Any(p => p.IdProduct == id);
+                var hasItems = _service.GetAllProducts().Where(p => p.CategoryId == id);
+                if (hasItems.Any())
                 {
                     return BadRequest("Cannot delete category with existing products. ");
                 }
 
-                _context.ProductCategories.Remove(category);
-                _context.SaveChanges();
+                _categoryService.DeleteCategory(id);
+                var dto = _mapper.Map<CategoryUpdateDto>(category); 
 
-                return Ok(category);
+                return Ok(dto);
             }
             catch (Exception ex)
             {
