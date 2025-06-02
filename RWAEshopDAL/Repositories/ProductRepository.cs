@@ -51,12 +51,18 @@ namespace RWAEshopDAL.Repositories
 
         public IEnumerable<Product> GetAll()
         {
-            return _context.Products.ToList();
+            return _context.Products
+                .Include(p=> p.CountryProducts)
+                .ThenInclude(cp => cp.Country)
+                .ToList();
         }
 
         public Product? GetById(int id)
         {
-            return _context.Products.Find(id);
+            return _context.Products
+                .Include(p=> p.CountryProducts)
+                .ThenInclude(cp => cp.Country)
+                .FirstOrDefault(p=> p.IdProduct == id);
         }
 
         public IEnumerable<Country> GetCountriesforProduct(int productID)

@@ -4,7 +4,7 @@ namespace RWAEShop.DTOs
 {
     public class CountryResponseDto
     {
-        public int Id { get; set; }
+        public int IdCountry { get; set; }
         [Required]
         public string Name { get; set;}
 

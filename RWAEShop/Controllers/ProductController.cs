@@ -28,7 +28,7 @@ namespace RWAEShop.Controllers
             {
                 var product = _service.GetAllProducts();
 
-                if (categoryId != null)
+                if (categoryId.HasValue)
                     product = product.Where(p => p.CategoryId == categoryId.Value);
 
                 var dtos = product.Select(p =>
@@ -36,6 +36,7 @@ namespace RWAEShop.Controllers
                     var dto = _mapper.Map<ProductResponseDto>(p);
                     dto.CountryNames = p.CountryProducts
                     .Select(cp => cp.Country.Name)
+                    .Where(name => name != null)
                     .ToList();
                     return dto;
                 }).ToList();
