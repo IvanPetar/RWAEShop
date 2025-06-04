@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+
 
 namespace RWAEshopDAL.Security
 {
@@ -12,7 +9,7 @@ namespace RWAEshopDAL.Security
     {
         public static string GetSalt()
         {
-            byte[] salt = RandomNumberGenerator.GetBytes(128 / 8); // divide by 8 to convert bits to bytes
+            byte[] salt = RandomNumberGenerator.GetBytes(128 / 8); 
             string b64Salt = Convert.ToBase64String(salt);
 
             return b64Salt;
