@@ -1,19 +1,19 @@
-﻿namespace RWAEShop.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RWAEShop.DTOs
 {
     public class OrderUpdateDto
     {
         public int UserId { get; set; }
-        public List<UpdateOrderItemDto> Items { get; set; }
+        public List<UpdateOrderItemDto> OrderItems { get; set; } = new();
     }
 
     public class UpdateOrderItemDto 
     {
-        public int IdOrderItem {  get; set; }
-        public int OrderId {  get; set; }
+        [Required]
         public int ProductId { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
-
+ 
 
     }
 }

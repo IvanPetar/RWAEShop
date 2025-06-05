@@ -125,7 +125,6 @@ namespace RWAEShop.Controllers
 
 
 
-                //var hasItems = _context.Products.Any(p => p.IdProduct == id);
                 var hasItems = _service.GetAllProducts().Where(p => p.CategoryId == id);
                 if (hasItems.Any())
                 {
