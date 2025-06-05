@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RWAEShop", "RWAEShop\RWAESh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RWAEshopDAL", "RWAEshopDAL\RWAEshopDAL.csproj", "{BAA97166-5F56-4EA9-8402-3CDCF2616403}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RWAEShopMVC", "RWAEShopMVC\RWAEShopMVC.csproj", "{E75D859C-FF51-48C8-B077-408976AD4C90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{BAA97166-5F56-4EA9-8402-3CDCF2616403}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAA97166-5F56-4EA9-8402-3CDCF2616403}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAA97166-5F56-4EA9-8402-3CDCF2616403}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E75D859C-FF51-48C8-B077-408976AD4C90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E75D859C-FF51-48C8-B077-408976AD4C90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E75D859C-FF51-48C8-B077-408976AD4C90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E75D859C-FF51-48C8-B077-408976AD4C90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
