@@ -76,6 +76,13 @@ namespace RWAEShop.Controllers
                     var product = _productService.GetProduct(itemDto.ProductId);
                     if (product == null)
                         return BadRequest($"Product with that id {itemDto.ProductId} doesnt exist.");
+                    if (product.Quantity < itemDto.Quantity)
+                    {
+                        return BadRequest($"There is not enough product {product.Name} on warehouse.");
+                    }
+
+                    product.Quantity -= itemDto.Quantity;
+                    _productService.UpdateProduct(product);
 
                     itemDto.Price = product.Price;
                     total = itemDto.Price * itemDto.Quantity;
@@ -98,47 +105,17 @@ namespace RWAEShop.Controllers
 
 
         [HttpPut("{id}")]
-        public ActionResult<OrderResponseDto> UpdateOrder(int id, [FromBody] OrderUpdateDto dto)
+        public ActionResult<OrderResponseDto> UpdateOrder(int id, [FromBody] OrderUpdateDto request)
         {
             try
             {
-                var order = _service.GetOrder(id);
-                if (order == null)
-                    return NotFound($"Order with that  {id} doesnt exist.");
+                
+                var order = _service.UpdateOrder(id, productId, quantity);
+                if (order == null) return NotFound("Didnt found");
 
-                order.UserId = dto.UserId;
+                var response = _mapper.Map<OrderResponseDto>(order);    
 
-                var existingItems = order.OrderItems.ToDictionary(oi => oi.IdOrderItem);
-                var updatedItems = new List<OrderItem>();
-                decimal newTotal = 0;
-
-                foreach (var itemDto in dto.OrderItems)
-                {
-                    var product = _productService.GetProduct(itemDto.ProductId);
-                    if (product == null)
-                        return BadRequest($"Product with that id {itemDto.ProductId} doesnt exist.");
-
-                    var price = product.Price;
-                    var totalCost = price * itemDto.Quantity;
-
-                    var newItem = new OrderItem
-                    {
-                        ProductId = itemDto.ProductId,
-                        Quantity = itemDto.Quantity
-                    };
-
-                    updatedItems.Add(newItem);
-                    newTotal += totalCost;
-
-                }
-
-                order.OrderItems = updatedItems;
-                order.TotalAmount = newTotal;
-
-                _service.UpdateOrder(order);
-
-                var responseDto = _mapper.Map<OrderResponseDto>(order);
-                return Ok(responseDto);
+                return NoContent();
             }
             catch (Exception ex)
             {
@@ -147,28 +124,33 @@ namespace RWAEShop.Controllers
         }
 
 
-        //[HttpDelete("{id}")]
-        //public ActionResult<OrderResponseDto> DeleteOrder(int id)
-        //{
-        //    try
-        //    {
-        //        var order = _context.Orders
-        //            .Include(o => o.OrderItems)
-        //            .FirstOrDefault(o => o.IdOrder == id);
+        [HttpDelete("{id}")]
+        public ActionResult<OrderResponseDto> DeleteOrder(int id)
+        {
+            try
+            {
+                var order = _service.GetOrder(id);
+                if (order == null)
+                    return NotFound($"Order with that {id} didnt found.");
+                    
+                foreach (var itemDto in order.OrderItems)
+                {
+                    var product = _productService.GetProduct(itemDto.ProductId);
+                    if(product != null)
+                    {
+                        product.Quantity += itemDto.Quantity;
+                        _productService.UpdateProduct(product);
+                    }
+                }
 
-        //        if (order == null)
-        //            return NotFound($"Order with that {id} didnt found.");
+                _service.DeleteOrder(id);
 
-        //        _context.OrderItems.RemoveRange(order.OrderItems);
-        //        _context.Orders.Remove(order);
-        //        _context.SaveChanges();
-
-        //        return Ok(order);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, $"Error while deleting order: {ex.Message}");
-        //    }
-        //}
+                return Ok($"Order succesfully deleted");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error while deleting order: {ex.Message}");
+            }
+        }
     }
 }

@@ -48,5 +48,6 @@ namespace RWAEshopDAL.Repositories
            _context.Countries.Update(country);
             _context.SaveChanges();
         }
+        public void SaveChanges() => _context.SaveChanges();
     }
 }

@@ -14,6 +14,7 @@ namespace RWAEshopDAL.Repositories
         void Add(ProductCategory category);
         void Update(ProductCategory category);
         void Delete(int id);
+        void SaveChanges();
 
     }
 }

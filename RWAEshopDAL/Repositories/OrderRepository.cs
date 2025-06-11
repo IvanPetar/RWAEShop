@@ -48,10 +48,8 @@ namespace RWAEshopDAL.Repositories
             return _context.Orders.Include(oi => oi.OrderItems).FirstOrDefault(oi => oi.IdOrder == id);
         }
 
-        public void Update(Order order)
-        {
-            _context.Orders.Update(order);
-            _context.SaveChanges();
-        }
+        public void Update(Order order)=>_context.Orders.Update(order);
+        public void SaveChanges()=> _context.SaveChanges();
+      
     }
 }

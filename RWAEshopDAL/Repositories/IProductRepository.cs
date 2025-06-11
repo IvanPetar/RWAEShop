@@ -18,5 +18,6 @@ namespace RWAEshopDAL.Repositories
         IEnumerable<Country> GetCountriesforProduct(int productID);
         void AddProductToCountry(int productID, int countryID);
         void RemoveProductToCountry(int productID, int countryID);
+        void SaveChanges();
     }
 }

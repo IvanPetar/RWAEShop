@@ -14,5 +14,6 @@ namespace RWAEshopDAL.Repositories
         void Add(Country country);
         void Update(Country country);
         void Delete(int id);
+        void SaveChanges();
     }
 }

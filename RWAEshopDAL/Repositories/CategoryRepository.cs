@@ -54,5 +54,6 @@ namespace RWAEshopDAL.Repositories
             _context.ProductCategories.Update(category);
             _context.SaveChanges();
         }
+        public void SaveChanges() => _context.SaveChanges();
     }
 }

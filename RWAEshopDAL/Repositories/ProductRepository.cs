@@ -91,5 +91,6 @@ namespace RWAEshopDAL.Repositories
             _context.Products.Update(product);
             _context.SaveChanges();
         }
+        public void SaveChanges() => _context.SaveChanges();
     }
 }
