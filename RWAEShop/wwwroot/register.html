@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 30px 40px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+            .register-container h2 {
+                color: #1d4ed8;
+                font-weight: bold;
+                margin-bottom: 25px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .register-container label {
+                display: block;
+                text-align: left;
+                margin-top: 15px;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+            .register-container input[type="text"],
+            .register-container input[type="password"],
+            .register-container input[type="email"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+
+            .register-container button {
+                margin-top: 20px;
+                width: 100%;
+                padding: 10px;
+                background-color: #1d4ed8;
+                border: none;
+                color: white;
+                font-weight: bold;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+                .register-container button:hover {
+                    background-color: #1e40af;
+                }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+            .link a {
+                text-decoration: none;
+                color: #1d4ed8;
+            }
+
+                .link a:hover {
+                    text-decoration: underline;
+                }
+    </style>
+
+    <div class="register-container">
+        <h2>REGISTER</h2>
+        <hr style="height:1px;border-width:0;color:gray;background-color:gray">
+
+        <label for="username"><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" id="username" required />
+
+        <label for="password"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" id="password" required />
+
+        <label for="name"><b>Name</b></label>
+        <input type="text" placeholder="Enter Name" name="name" id="name" required />
+
+        <label for="lastname"><b>Last Name</b></label>
+        <input type="text" placeholder="Enter Last Name" name="lastname" id="lastname" required />
+
+        <label for="email"><b>Email</b></label>
+        <input type="email" placeholder="Enter Email" name="email" id="email" required />
+
+        <label for="phone"><b>Phone</b></label>
+        <input type="text" placeholder="Enter Phone" name="phone" id="phone" required />
+
+        <button onclick="registerUser()">Register</button>
+
+        <div class="error" id="errorMsg"></div>
+
+        <div class="link">
+            <a href="login.html">Already have an account? Login</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        const registerUrl = "http://localhost:5194/api/User/Register";
+
+        function registerUser() {
+            const registerData = {
+                username: $("#username").val(),
+                password: $("#password").val(),
+                name: $("#name").val(),
+                lastName: $("#lastname").val(),
+                email: $("#email").val(),
+                phone: $("#phone").val()
+            };
+
+            $.ajax({
+                method: "POST",
+                url: registerUrl,
+                data: JSON.stringify(registerData),
+                contentType: 'application/json'
+            }).done(function () {
+                $("#errorMsg").css("color", "green").text("Registration successful. Redirecting to login...");
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 2000);
+            }).fail(function (err) {
+                $("#errorMsg").css("color", "red").text("Registration failed: " + err.responseText);
+            });
+        }
+    </script>
+
+
+
+</body>
+</html>

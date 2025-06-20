@@ -29,32 +29,28 @@ namespace RWAEshopDAL.Services
 
         public Order? GetOrder(int id)=> _orderRepository.GetById(id);
 
-        public void UpdateOrder(int userId, int productId, int quantity) 
+        public void UpdateOrder(Order order) 
         {
-            var order = _orderRepository.GetById(userId);
-            if (order == null)
-                throw new ArgumentException("Order not found for that specific user");
+            _orderRepository.Update(order);
+        }
 
-            var itemToUpdate = order.OrderItems.FirstOrDefault(i => i.ProductId == productId);
-            if (itemToUpdate == null)
-                throw new ArgumentException("item not found in that order");
-            itemToUpdate.Quantity = quantity;
-
-            decimal newTotal = 0;
-
-            foreach (var item in order.OrderItems)
-            {
-                var product = _productRepository.GetById(item.ProductId);
-                if (product == null)
-                    throw new ArgumentException($"Product with that {item.ProductId} doesnt exist");
-
-                newTotal = product.Price * item.Quantity;
+        public void UpdateOrderItem(int id, int productId, int quantity)
+        {
+            var order = _orderRepository.GetById(id);
+            if (order == null) {
+                throw new ArgumentException("Order not found for specific user");
             }
-
-            order.TotalAmount = newTotal;
-
-           _orderRepository.Update(order);
-           _orderRepository.SaveChanges();
+            var itemToUpdate = order.OrderItems.FirstOrDefault(i =>
+                i.ProductId == productId);
+            if (itemToUpdate != null)
+            {
+                itemToUpdate.Quantity = quantity;
+                _orderRepository.Update(order);
+            }
+            else
+            {
+                throw new ArgumentException("Item bot found in cart/order");
+            }
         }
     }
 }

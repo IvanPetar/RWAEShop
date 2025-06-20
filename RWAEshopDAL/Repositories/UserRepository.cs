@@ -19,6 +19,7 @@ namespace RWAEshopDAL.Repositories
 
         public void Add(User user)
         {
+            user.RoleId = 2;
             _context.Users.Add(user);
             _context.SaveChanges();
         }

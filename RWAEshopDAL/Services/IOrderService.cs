@@ -12,7 +12,8 @@ namespace RWAEshopDAL.Services
         IEnumerable<Order> GetAllOrders();
         Order? GetOrder(int id);
         void CreateOrder(Order order);
-        void UpdateOrder(int userId, int productId, int quantity);
+        void UpdateOrder(Order order);
+        void UpdateOrderItem(int id, int productId, int quantity);
         void DeleteOrder(int id);
     }
 }

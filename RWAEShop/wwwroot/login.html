@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <style>
+        body {
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 30px 40px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+            .login-container h2 {
+                color: #1d4ed8;
+                font-weight: bold;
+                margin-bottom: 25px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .login-container label {
+                display: block;
+                text-align: left;
+                margin-top: 15px;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+
+            .login-container input[type="text"],
+            .login-container input[type="password"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+
+            .login-container button {
+                margin-top: 20px;
+                width: 100%;
+                padding: 10px;
+                background-color: #1d4ed8;
+                border: none;
+                color: white;
+                font-weight: bold;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+                .login-container button:hover {
+                    background-color: #1e40af;
+                }
+
+
+
+        .error {
+            color: red;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+            .link a {
+                text-decoration: none;
+                color: #1d4ed8;
+            }
+
+                .link a:hover {
+                    text-decoration: underline;
+                }
+    </style>
+
+
+    <div class="login-container">
+        <h2>AKUŽA LOGIN</h2>
+        <hr style="height:1px;border-width:0;color:gray;background-color:gray">
+        <label for="username"><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" id="username" required />
+
+        <label for="password"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" id="password" required />
+
+        <button onclick="jwtLogin()">Login</button>
+
+        <div class="error" id="errorMsg"></div>
+
+        <div class="link">
+            <a href="register.html">Register new account</a>
+        </div>
+
+
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+        const loginUrl = "http://localhost:5194/api/User/Login";
+        function jwtLogin() {
+            const loginData = {
+                username: $("#username").val(),
+                password: $("#password").val()
+            };
+            $.ajax({
+                method: "POST",
+                url: loginUrl,
+                data: JSON.stringify(loginData),
+                contentType: 'application/json'
+            }).done(function (tokenData) {
+                localStorage.setItem("JWT", tokenData);
+                window.location.href = "logs.html";
+            }).fail(function (err) {
+                $("#errorMsg").text("Login failed: " + err.responseText);
+                localStorage.removeItem("JWT");
+            })
+
+
+        }
+
+    </script>
+
+</body>
+</html>

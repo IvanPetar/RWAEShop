@@ -99,30 +99,14 @@ namespace RWAEShop.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Erro while creating order: {ex.Message}");
+                return StatusCode(500, $"Error while creating order: {ex.Message}");
             }
         }
-
-
-        [HttpPut("{id}")]
-        public ActionResult<OrderResponseDto> UpdateOrder(int id, [FromBody] OrderUpdateDto request)
-        {
-            try
-            {
-                
-                var order = _service.UpdateOrder(id, productId, quantity);
-                if (order == null) return NotFound("Didnt found");
-
-                var response = _mapper.Map<OrderResponseDto>(order);    
-
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error while updating order: {ex.Message}");
-            }
-        }
-
+        //[HttpPut("{id}")]
+        //public ActionResult<OrderResponseDto> UpdateOrder(int id, [FromBody] OrderUpdateDto dto)
+        //{
+           
+        //}
 
         [HttpDelete("{id}")]
         public ActionResult<OrderResponseDto> DeleteOrder(int id)
