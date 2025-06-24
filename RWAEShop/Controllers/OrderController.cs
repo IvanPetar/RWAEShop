@@ -102,11 +102,54 @@ namespace RWAEShop.Controllers
                 return StatusCode(500, $"Error while creating order: {ex.Message}");
             }
         }
-        //[HttpPut("{id}")]
-        //public ActionResult<OrderResponseDto> UpdateOrder(int id, [FromBody] OrderUpdateDto dto)
-        //{
-           
-        //}
+        [HttpPut("{orderId}/items/{productId}")]
+        public ActionResult<OrderResponseDto> UpdateOrderItem(int orderId, int productId, [FromBody] UpdateOrderItemDto dto)
+        {
+            try
+            {
+                if (dto.ProductId != productId)
+                {
+                    return BadRequest("Product ID in URL and body do not match.");
+                }
+
+                var order = _service.GetOrder(orderId);
+                if (order == null)
+                    return NotFound($"Order {orderId} not found.");
+
+                var oldItem = order.OrderItems.FirstOrDefault(oi => oi.ProductId == productId);
+                if (oldItem == null)
+                    return NotFound($"Product {productId} not found in order.");
+
+                var product = _productService.GetProduct(productId);
+                if (product == null)
+                    return BadRequest($"Product {productId} not found.");
+
+               
+                product.Quantity += oldItem.Quantity;
+
+                if (product.Quantity < dto.Quantity)
+                    return BadRequest("Not enough quantity available.");
+
+               
+                product.Quantity -= dto.Quantity;
+                _productService.UpdateProduct(product);
+
+                oldItem.Quantity = dto.Quantity;
+                oldItem.Price = product.Price;
+
+                
+                order.TotalAmount = order.OrderItems.Sum(i => i.Quantity * i.Price);
+                _service.UpdateOrder(order);
+
+                var resultDto = _mapper.Map<OrderResponseDto>(order);
+                return Ok(resultDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error updating order item: {ex.Message}");
+            }
+        }
+
 
         [HttpDelete("{id}")]
         public ActionResult<OrderResponseDto> DeleteOrder(int id)
