@@ -10,6 +10,6 @@
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
 
-        public List<string> CountryNames { get; set; } = new();
+        public List<string> CountryNames { get; set; } = new(); 
     }
 }

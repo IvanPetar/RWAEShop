@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RWAEshopDAL.Services;
+using RWAEShopMVC.ViewModels;
 
 namespace RWAEShopMVC.Controllers
 {
@@ -9,11 +10,13 @@ namespace RWAEShopMVC.Controllers
     {
         private readonly ProductService _productService;
         private readonly IMapper _mapper;
+        private readonly CategoryService _categoryService;
 
-        public ProductController(ProductService productService, IMapper mapper)
+        public ProductController(ProductService productService,CategoryService categoryService ,IMapper mapper)
         {
             _productService = productService;
             _mapper = mapper;
+            _categoryService = categoryService;
         }
 
 
@@ -21,9 +24,11 @@ namespace RWAEShopMVC.Controllers
         public ActionResult Index()
         {
 
-            var products = _productService.GetAllProducts();
+            var products = 
+                _productService.GetAllProducts();
 
-            return View();
+            var model = _mapper.Map<List<ProductVM>>(products);
+            return View(model);
         }
 
         // GET: ProductController/Details/5
