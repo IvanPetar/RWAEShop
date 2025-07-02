@@ -26,11 +26,11 @@ public partial class Product
     [StringLength(255)]
     public string ImageUrl { get; set; } = null!;
 
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
 
     [ForeignKey("CategoryId")]
     [InverseProperty("Products")]
-    public virtual ProductCategory Category { get; set; } = null!;
+    public virtual ProductCategory? Category { get; set; }
 
     [InverseProperty("Product")]
     public virtual ICollection<CountryProduct> CountryProducts { get; set; } = new List<CountryProduct>();

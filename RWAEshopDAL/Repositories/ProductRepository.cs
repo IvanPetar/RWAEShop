@@ -54,12 +54,14 @@ namespace RWAEshopDAL.Repositories
             return _context.Products
                 .Include(p=> p.CountryProducts)
                 .ThenInclude(cp => cp.Country)
+                .Include(cn=> cn.Category)
                 .ToList();
         }
 
         public Product? GetById(int id)
         {
             return _context.Products
+                .Include(p=> p.Category)
                 .Include(p=> p.CountryProducts)
                 .ThenInclude(cp => cp.Country)
                 .FirstOrDefault(p=> p.IdProduct == id);

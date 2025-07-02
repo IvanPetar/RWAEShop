@@ -26,11 +26,11 @@ builder.Services.AddDbContext<EshopContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 
 
-builder.Services.AddScoped<CategoryService>();
-builder.Services.AddScoped<CountryService>();
-builder.Services.AddScoped<OrderService>();
-builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICountryService, CountryService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 
 

@@ -18,18 +18,16 @@ namespace RWAEShopMVC.MappingProfile
             CreateMap<OrderItem, OrderItemVM>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Product.Name));
 
-            CreateMap<Product, ProductVM>().ReverseMap();
             CreateMap<Product, ProductVM>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.CountryNames, opt => opt.MapFrom(src =>
-                    src.CountryProducts.Select(cp => cp.Country.Name).ToList()));
+                 src.CountryProducts.Select(cp => cp.Country.Name).ToList()))
+                .ReverseMap()
+                .ForMember(dest => dest.Category, opt => opt.Ignore());
 
-            CreateMap<ProductVM, Product>()
-                 .ForMember(dest => dest.Category, opt => opt.Ignore());
-           
+            CreateMap<ProductCategory, CategoryVM>().ReverseMap();
 
-
-
+            CreateMap<Country, CountryVM>().ReverseMap();
 
         }
     }

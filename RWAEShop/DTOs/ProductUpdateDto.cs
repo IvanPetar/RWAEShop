@@ -5,7 +5,7 @@ namespace RWAEShop.DTOs
 {
     public class ProductUpdateDto
     {
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
 
         [StringLength(100)]
         public string Name { get; set; }

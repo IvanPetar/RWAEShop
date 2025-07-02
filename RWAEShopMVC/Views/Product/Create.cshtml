@@ -1,0 +1,60 @@
+﻿@using RWAEShopMVC.ViewModels
+@model ProductVM
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="container mt-5">
+    <h2 class="fw-bold text-primary mb-4" style="letter-spacing:1px;">Add Product</h2>
+
+    <form asp-action="Create" autocomplete="off">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" autocomplete="off" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="ProductDescription" class="form-label"></label>
+            <input asp-for="ProductDescription" class="form-control" autocomplete="off" />
+            <span asp-validation-for="ProductDescription" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Price" class="form-label"></label>
+            <input asp-for="Price" class="form-control" autocomplete="off" />
+            <span asp-validation-for="Price" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Quantity" class="form-label"></label>
+            <input asp-for="Quantity" class="form-control" min="0" autocomplete="off" />
+            <span asp-validation-for="Quantity" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="ImageUrl" class="form-label"></label>
+            <input asp-for="ImageUrl" class="form-control" autocomplete="off" />
+            <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label"></label>
+            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">
+                <option value="">-- Select Category --</option>
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger small"></span>
+        </div>
+        <div class="mb-4">
+            <label class="form-label">Countries</label>
+            @Html.ListBoxFor(model => model.CountryNames, (MultiSelectList)ViewBag.Countries, new { @class = "form-select", size = 3 })
+            <span asp-validation-for="CountryNames" class="text-danger small"></span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg px-5 fw-bold">Add</button>
+        <a asp-action="Index" class="btn btn-link ms-2">Back to Products</a>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

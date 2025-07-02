@@ -29,11 +29,16 @@ namespace RWAEshopDAL.Repositories
                 .Include(h => h.Products)
                 .FirstOrDefault(h =>h.IdCategory == id);
 
-            if (item != null) 
+            if (item != null)
             {
-                _context.Products.RemoveRange(item.Products);
-                _context.ProductCategories.Remove(item);
+                
+                foreach (var product in item.Products.ToList())
+                {
+                    product.CategoryId = null;
+                }
 
+                
+                _context.ProductCategories.Remove(item);
                 _context.SaveChanges();
             }
 
@@ -51,8 +56,14 @@ namespace RWAEshopDAL.Repositories
 
         public void Update(ProductCategory category)
         {
-            _context.ProductCategories.Update(category);
-            _context.SaveChanges();
+            var existing = _context.ProductCategories.Find(category.IdCategory);
+            if (existing != null)
+            {
+                existing.Name = category.Name;
+                _context.SaveChanges();
+            }
+           
+
         }
         public void SaveChanges() => _context.SaveChanges();
     }

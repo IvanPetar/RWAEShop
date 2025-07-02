@@ -24,13 +24,16 @@ namespace RWAEshopDAL.Repositories
 
         public void Delete(int id)
         {
-            var item = _context.Countries.FirstOrDefault(h => h.IdCountry == id);
+            var item = _context.CountryProducts
+                .Where(cp => cp.CountryId == id);
 
-            if (item != null) 
-            {
-                _context.Countries.Remove(item);
-                _context.SaveChanges();
-            }
+            _context.CountryProducts.RemoveRange(item);
+
+            var country = _context.Countries.Find(id);
+            if (country != null)
+                _context.Countries.Remove(country);
+
+            _context.SaveChanges();
         }
 
         public IEnumerable<Country> GetAll()
@@ -45,8 +48,13 @@ namespace RWAEshopDAL.Repositories
 
         public void Update(Country country)
         {
-           _context.Countries.Update(country);
-            _context.SaveChanges();
+            var existing = _context.Countries.Find(country.IdCountry);
+            if (existing != null) 
+            {
+                existing.Name = country.Name;
+                _context.SaveChanges();
+            }
+           
         }
         public void SaveChanges() => _context.SaveChanges();
     }

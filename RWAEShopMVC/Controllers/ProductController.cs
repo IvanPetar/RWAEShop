@@ -1,6 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
+using Microsoft.EntityFrameworkCore;
+using RWAEshopDAL.Models;
 using RWAEshopDAL.Services;
 using RWAEShopMVC.ViewModels;
 
@@ -8,15 +12,17 @@ namespace RWAEShopMVC.Controllers
 {
     public class ProductController : Controller
     {
-        private readonly ProductService _productService;
+        private readonly IProductService _productService;
         private readonly IMapper _mapper;
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
+        private readonly ICountryService _countryService;
 
-        public ProductController(ProductService productService,CategoryService categoryService ,IMapper mapper)
+        public ProductController(IProductService productService,ICategoryService categoryService, ICountryService countryService, IMapper mapper)
         {
             _productService = productService;
             _mapper = mapper;
             _categoryService = categoryService;
+            _countryService = countryService;
         }
 
 
@@ -34,69 +40,147 @@ namespace RWAEShopMVC.Controllers
         // GET: ProductController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            var item = _productService.GetProduct(id);
+            if (item == null) 
+            {
+                return NotFound();
+            }
+            var model = _mapper.Map<ProductVM>(item);
+            return View(model);
         }
 
         // GET: ProductController/Create
         public ActionResult Create()
         {
+            ViewBag.CategoryId = new SelectList(_categoryService.GetAllCategory(), "IdCategory", "Name");
+            ViewBag.Countries = new MultiSelectList(_countryService.GetAllCountry(), "IdCountry", "Name");
+
             return View();
         }
 
         // POST: ProductController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(ProductVM model)
         {
-            try
+            
+                if (!ModelState.IsValid) 
+                {
+                    ViewBag.CategoryId = new SelectList(_categoryService.GetAllCategory(), "IdCategory", "Name", model.CategoryId);
+                    ViewBag.Countries = new MultiSelectList(_countryService.GetAllCountry(), "IdCountry", "Name", model.CountryNames);
+                    return View(model);
+                }
+
+                var product = _mapper.Map<Product>(model);
+
+                _productService.CreateProduct(product);
+
+            foreach (var countryStr in model.CountryNames)
             {
-                return RedirectToAction(nameof(Index));
+                if (int.TryParse(countryStr, out int countryId))
+                {
+                    _productService.AddProductToCountries(product.IdProduct, countryId);
+                }
             }
-            catch
-            {
-                return View();
-            }
+
+            return RedirectToAction(nameof(Index));
+
         }
 
         // GET: ProductController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var product = _productService.GetProduct(id);
+            if (product == null)
+                return NotFound();
+
+            var model = _mapper.Map<ProductVM>(product);
+
+            model.CountryNames = product.CountryProducts?
+                .Select(cp => cp.Country.Name)
+                .ToList() ?? new List<string>();
+
+            ViewBag.CategoryId = new SelectList(_categoryService.GetAllCategory(), "IdCategory", "Name", model.CategoryId);
+            ViewBag.Countries = new MultiSelectList(_countryService.GetAllCountry(), "IdCountry", "Name", model.CountryNames);
+
+            return View(model);
         }
 
         // POST: ProductController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, ProductVM model)
         {
-            try
+
+            if (!ModelState.IsValid)
             {
-                return RedirectToAction(nameof(Index));
+                ViewBag.CategoryId = new SelectList(_categoryService.GetAllCategory(), "IdCategory", "Name", model.CategoryId);
+                ViewBag.Countries = new MultiSelectList(_countryService.GetAllCountry(), "IdCountry", "Name", model.CountryNames);
+                return View(model);
             }
-            catch
+
+
+            var existingProduct = _productService.GetProduct(id);
+            if (existingProduct == null)
+                return NotFound();
+
+
+            _mapper.Map(model, existingProduct);
+
+            foreach (var countryName in model.CountryNames)
             {
-                return View();
+                var country = _countryService.GetAllCountry().FirstOrDefault(c => c.Name == countryName);
+                if (country != null)
+                {
+                    existingProduct.CountryProducts.Add(new CountryProduct
+                    {
+                        CountryId = country.IdCountry,
+                        ProductId = existingProduct.IdProduct
+                    });
+                }
             }
+
+            _productService.UpdateProduct(existingProduct);
+
+            return RedirectToAction(nameof(Index));
+
+
         }
 
         // GET: ProductController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            var item = _productService.GetProduct(id);
+            if (item == null) return NotFound();
+
+            var model = _mapper.Map<ProductVM>(item);
+
+            model.CountryNames = item.CountryProducts?
+                .Select(cp => cp.Country.Name)
+                .ToList() ?? new List<string>();
+
+            // Prikaži potvrdu za brisanje
+            return View(model);
         }
 
         // POST: ProductController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        [ActionName("Delete")]
+        public ActionResult DeleteConfirmed(int id)
         {
             try
             {
+                _productService.DeleteProduct(id);
+               
                 return RedirectToAction(nameof(Index));
             }
             catch
             {
-                return View();
+                var item = _productService.GetProduct(id);
+                var model = _mapper.Map<ProductVM>(item);
+                ModelState.AddModelError("", "An error occurred while deleting the product.");
+                return View(model);
             }
         }
     }

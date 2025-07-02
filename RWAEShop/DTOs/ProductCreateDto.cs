@@ -13,7 +13,7 @@ namespace RWAEShop.DTOs
         public int Quantity { get; set; }
 
         public string? ImageUrl { get; set; }
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
 
         public List<int> CountryId { get; set; } = new();
 
