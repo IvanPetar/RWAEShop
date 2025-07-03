@@ -1,0 +1,96 @@
+﻿@using System.Security.Claims
+@using RWAEShopWebApp.ViewModels
+@{
+    var role = ViewContext.HttpContext.User?.FindFirst(ClaimTypes.Role)?.Value;
+}
+
+@using RWAEShopWebApp.ViewModels
+@model ProductVM
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container mt-4">
+    <div class="mb-2 text-muted" style="font-size:2rem;">
+        @Model.CategoryName
+    </div>
+    <h3 class="mb-4">@Model.Name</h3>
+    <div class="row">
+        <!-- Left images/thumbnails -->
+        <div class="col-md-5">
+            <div class="row">
+                <div class="col-9">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" class="img-fluid border rounded" alt="Main product image"
+                        style="min-height:350px;max-height:350px;object-fit:contain;background:#f3f3f3;" />
+                    }
+                    else
+                    {
+                        <img src="~/img/no-image.png" class="img-fluid border rounded" alt="No image"
+                        style="min-height:350px;max-height:350px;object-fit:contain;background:#f3f3f3;" />
+                    }
+                </div>
+            </div>
+        </div>
+        <!-- Product info / price -->
+        <div class="col-md-7">
+            <div class="border rounded p-3 mb-3" style="background:#fafafa;">
+                <div>
+                    <strong>Price:</strong>
+                    <span class="h5 text-primary ml-2">@Model.Price.ToString("0.00") €</span>
+                </div>
+                <div class="mt-2">
+                    <strong>In Stock:</strong> @(Model.Quantity > 0 ? "Yes" : "No")
+                </div>
+                <div class="mt-1">
+                    @if (role == "Admin")
+                    {
+                        <strong>Quantity:</strong> @Model.Quantity
+                    }
+                </div>
+                <div class="mt-1">
+                    <strong>Country:</strong>
+                    @foreach (var country in Model.CountryNames ?? new List<string>())
+                    {
+                        @country
+                    }
+                </div>
+                <div class="mt-1">
+                    <strong>Image url:</strong> @(Model.ImageUrl?.Length > 0 ? "Yes" : "No")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabovi/Opis (možeš proširiti za specifications/tags...) -->
+    <div class="card mt-4 shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Description</h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-0">@Model.ProductDescription</p>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        @if (role == "Admin")
+        {
+            <a asp-action="Edit" asp-route-id="@Model?.IdProduct" class="btn btn-primary">Edit</a>
+            <a asp-action="Index" class="btn btn-outline-secondary ml-2">Back to Products</a>
+        }
+        else
+        {
+            <a asp-action="Shop" class="btn btn-outline-secondary ml-2">Back to Products</a>
+        }
+
+    </div>
+</div>
+
+
+@* @section Scripts {
+    <script>
+        $(function () { $('#productTab a').on('click', function (e) { e.preventDefault(); $(this).tab('show'); }); });
+    </script>
+} *@
