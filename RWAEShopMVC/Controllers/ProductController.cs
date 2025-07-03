@@ -29,15 +29,50 @@ namespace RWAEShopMVC.Controllers
 
         // GET: ProductController
         [Authorize(Roles= "Admin")]
-        public ActionResult Index()
+        public ActionResult Index(string? q, int? categoryId, int page = 1, int pageSize = 4)
         {
+            // 1. Dohvati queryable s relacijama
+            var query = _productService.GetAllQueryable();
 
-            var products = 
-                _productService.GetAllProducts();
+            // 2. Search
+            if (!string.IsNullOrWhiteSpace(q))
+                query = query.Where(p => p.Name != null && EF.Functions.Like(p.Name, $"%{q}%"));
 
-            var model = _mapper.Map<List<ProductVM>>(products);
+            // 3. Filtriranje po kategoriji
+            if (categoryId.HasValue)
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+
+            // 4. Ukupno za paginaciju
+            var totalCount = query.Count();
+
+            // 5. Paginacija
+            var pagedProducts = query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            // 6. Mapping u ViewModel
+            var model = _mapper.Map<List<ProductVM>>(pagedProducts);
+
+            // 7. Popuni kategorije za dropdown
+            var categories = _categoryService.GetAllCategory()
+                .Select(c => new SelectListItem
+                {
+                    Value = c.IdCategory.ToString(),
+                    Text = c.Name
+                }).ToList();
+            ViewBag.CategoryList = new SelectList(categories, "Value", "Text");
+
+            // 8. Podaci za paginaciju/filter
+            ViewData["CurrentFilter"] = q;
+            ViewData["CurrentCategory"] = categoryId;
+            ViewData["TotalPages"] = (int)Math.Ceiling((double)totalCount / pageSize);
+            ViewData["Page"] = page;
+            ViewData["PageSize"] = pageSize;
+
             return View(model);
         }
+
 
         // GET: ProductController/Details/5
         public ActionResult Details(int id)
@@ -205,13 +240,43 @@ namespace RWAEShopMVC.Controllers
             }
         }
 
+       
         [HttpGet]
-        public IActionResult Shop()
+        public IActionResult Shop(string? q, int? categoryId, int page = 1, int pageSize = 4)
         {
-            var products = _productService.GetAllProducts();
-            var model = _mapper.Map<List<ProductVM>>(products);
+            var query = _productService.GetAllQueryable();
+
+            if (!string.IsNullOrWhiteSpace(q))
+                query = query.Where(p => p.Name != null && EF.Functions.Like(p.Name, $"%{q}%"));
+
+            if (categoryId.HasValue)
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+
+            var totalCount = query.Count();
+            var pagedProducts = query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var model = _mapper.Map<List<ProductVM>>(pagedProducts);
+
+            var categories = _categoryService.GetAllCategory()
+                .Select(c => new SelectListItem
+                {
+                    Value = c.IdCategory.ToString(),
+                    Text = c.Name
+                }).ToList();
+            ViewBag.CategoryList = new SelectList(categories, "Value", "Text");
+
+            ViewData["CurrentFilter"] = q;
+            ViewData["CurrentCategory"] = categoryId;
+            ViewData["TotalPages"] = (int)Math.Ceiling((double)totalCount / pageSize);
+            ViewData["Page"] = page;
+            ViewData["PageSize"] = pageSize;
+
             return View(model);
         }
+
         [HttpGet]
         public IActionResult ShopDetails(int id)
         {

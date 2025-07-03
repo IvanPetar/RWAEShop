@@ -22,7 +22,15 @@ namespace RWAEshopDAL.Services
         public void CreateProduct(Product product)=> _repository.Add(product);
         public void DeleteProduct(int id) => _repository.Delete(id);
 
-        public IEnumerable<Product> GetAllProducts() => _repository.GetAll();
+        public IEnumerable<Product> GetAllProducts(int? categoryId = null, int page = 1, int pageSize = 4)
+        {
+            return _repository.GetAll(categoryId, page, pageSize);
+        }
+
+        public IQueryable<Product> GetAllQueryable()
+        {
+            return _repository.GetAllQueryable();
+        }
 
         public IEnumerable<Country> GetCountriesforProductes(int productID)=> _repository.GetCountriesforProduct(productID);
 

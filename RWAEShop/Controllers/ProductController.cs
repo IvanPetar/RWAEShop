@@ -22,11 +22,11 @@ namespace RWAEShop.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<ProductResponseDto>> GetAllProducts([FromQuery] int? categoryId)
+        public ActionResult<IEnumerable<ProductResponseDto>> GetAllProducts([FromQuery] int? categoryId,[FromQuery] string? q,[FromQuery] int page = 1,[FromQuery] int pageSize = 4)
         {
             try
             {
-                var product = _service.GetAllProducts();
+                var product = _service.GetAllProducts(categoryId, page, pageSize);
 
                 if (categoryId.HasValue)
                     product = product.Where(p => p.CategoryId == categoryId.Value);

@@ -49,14 +49,23 @@ namespace RWAEshopDAL.Repositories
             }
         }
 
-        public IEnumerable<Product> GetAll()
+        public IEnumerable<Product> GetAll(int? categoryId, int page, int pageSize)
         {
-            return _context.Products
-                .Include(p=> p.CountryProducts)
-                .ThenInclude(cp => cp.Country)
-                .Include(cn=> cn.Category)
+            var query = _context.Products
+                .Include(p => p.CountryProducts)
+                    .ThenInclude(cp => cp.Country)
+                .Include(cn => cn.Category)
+                .AsQueryable();
+
+            if (categoryId.HasValue)
+                query = query.Where(p => p.CategoryId == categoryId.Value);
+
+            return query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToList();
         }
+
 
         public Product? GetById(int id)
         {
@@ -65,6 +74,14 @@ namespace RWAEshopDAL.Repositories
                 .Include(p=> p.CountryProducts)
                 .ThenInclude(cp => cp.Country)
                 .FirstOrDefault(p=> p.IdProduct == id);
+        }
+        public IQueryable<Product> GetAllQueryable()
+        {
+            return _context.Products
+                .Include(p => p.CountryProducts)
+                    .ThenInclude(cp => cp.Country)
+                .Include(p => p.Category)
+                .AsQueryable();
         }
 
         public IEnumerable<Country> GetCountriesforProduct(int productID)
