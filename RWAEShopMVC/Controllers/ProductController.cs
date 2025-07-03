@@ -61,7 +61,7 @@ namespace RWAEShopMVC.Controllers
         // POST: ProductController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(ProductVM model)
+        public async Task<IActionResult> Create(ProductVM model)
         {
             
                 if (!ModelState.IsValid) 
@@ -70,6 +70,15 @@ namespace RWAEShopMVC.Controllers
                     ViewBag.Countries = new MultiSelectList(_countryService.GetAllCountry(), "IdCountry", "Name", model.CountryNames);
                     return View(model);
                 }
+
+            if(model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                using var ms = new MemoryStream();
+                await model.ImageFile.CopyToAsync(ms);
+                var imageBytes = ms.ToArray();
+                model.ImageUrl = $"data:{model.ImageFile.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
+            }
+
 
                 var product = _mapper.Map<Product>(model);
 
@@ -88,6 +97,7 @@ namespace RWAEShopMVC.Controllers
         }
 
         // GET: ProductController/Edit/5
+        [HttpGet]
         public ActionResult Edit(int id)
         {
             var product = _productService.GetProduct(id);
@@ -109,7 +119,7 @@ namespace RWAEShopMVC.Controllers
         // POST: ProductController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, ProductVM model)
+        public async Task<IActionResult> Edit(int id, ProductVM model)
         {
 
             if (!ModelState.IsValid)
@@ -124,8 +134,17 @@ namespace RWAEShopMVC.Controllers
             if (existingProduct == null)
                 return NotFound();
 
-
             _mapper.Map(model, existingProduct);
+
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                using var ms = new MemoryStream();
+                await model.ImageFile.CopyToAsync(ms);
+                var imageBytes = ms.ToArray();
+                existingProduct.ImageUrl = $"data:{model.ImageFile.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
+            }
+
+            
 
             foreach (var countryName in model.CountryNames)
             {

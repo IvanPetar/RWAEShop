@@ -12,11 +12,13 @@ namespace RWAEShopMVC.ViewModels
         [Required(ErrorMessage = "Quantity je obavezno polje.")]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity mora biti veći od 0.")]
         public int Quantity { get; set; }
+        public IFormFile? ImageFile { get; set; }
 
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
         public int? CategoryId { get; set; }
         public string? CategoryName { get; set; }
 
         public List<string> CountryNames { get; set; } = new(); 
+
     }
 }

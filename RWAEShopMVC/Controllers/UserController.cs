@@ -7,6 +7,8 @@ using RWAEShopMVC.ViewModels;
 using RWAEshopDAL.Models;
 using RWAEshopDAL.Security;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace RWAEShopMVC.Controllers
 {
@@ -20,6 +22,43 @@ namespace RWAEShopMVC.Controllers
             _userService = userService;
             _mapper = mapper;
         }
+
+        public ActionResult Index()
+        {
+
+            var users =
+                _userService.GetAllUsers();
+
+            var model = _mapper.Map<List<UserRegisterVM>>(users);
+            return View(model);
+        }
+
+        public ActionResult Delete(int id)
+        {
+            var user = _userService.GetUser(id);
+            if (user == null) return NotFound();
+
+            var model = _mapper.Map<UserRegisterVM>(user);
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteConfirmed(int IdUser)
+        {
+            try
+            {
+                _userService.DeleteUser(IdUser);
+            }
+            catch (Exception ex)
+            {
+                
+                return NotFound(ex.Message);
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
 
         [HttpGet]
         public IActionResult Login(string returnUrl)
@@ -64,7 +103,10 @@ namespace RWAEShopMVC.Controllers
                 claims,
                 CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var authProperties = new AuthenticationProperties();
+            var authProperties = new AuthenticationProperties()
+            {
+                IsPersistent = false
+            };
 
             Task.Run(async () =>
                 await HttpContext.SignInAsync(
@@ -83,19 +125,14 @@ namespace RWAEShopMVC.Controllers
         public IActionResult Logout()
         {
             Task.Run(async () =>
-                await HttpContext.SignOutAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme)
-            ).GetAwaiter().GetResult();
+            await HttpContext.SignOutAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme)
+                 ).GetAwaiter().GetResult();
 
-            return View();
+            
+            return RedirectToAction("Index", "Home");
         }
-        //public async Task<IActionResult> Logout()
-        //{
-
-        //    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        //    return RedirectToAction("Index", "Home");
-        //}
-
+       
         public IActionResult Register() 
         {
             return View();
@@ -138,5 +175,85 @@ namespace RWAEShopMVC.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            var username = User.Identity.Name;
+            var user = _userService.GetAllUsers().FirstOrDefault(u=> u.Username == username);
+            if (user == null) return NotFound();
+
+            var model = new UserProfileVM
+            {
+                Username = user.Username,
+                Name = user.Name,
+                LastName = user.LastName,
+                Phone = user.Phone
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Profile([FromForm] UserProfileVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errorList = ModelState
+                    .Where(x => x.Value.Errors.Any())
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Validation failed.",
+                    errors = errorList
+                });
+            }
+            try
+            {
+                var username = User.Identity.Name;
+                var user = _userService.GetAllUsers().FirstOrDefault(u => u.Username == username);
+                if (user == null)
+                {
+                    return NotFound(new { success = false, message = "User not found." });
+                }
+
+                user.Name = model.Name;
+                user.LastName = model.LastName;
+                user.Phone = model.Phone;
+
+                if (!string.IsNullOrWhiteSpace(model.Password))
+                {
+                    var salt = PasswordHashProvider.GetSalt();
+                    var hash = PasswordHashProvider.GetHash(model.Password, salt);
+                    user.PwdSalt = salt;
+                    user.PwdHash = hash;
+                }
+
+                _userService.UpdateUser(user);
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Profile updated successfully."
+                });
+            }
+            catch (Exception ex) 
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Server error: " + ex.Message,
+                    details = ex.ToString()
+                });
+            }
+        }
+
+       
     }
 }

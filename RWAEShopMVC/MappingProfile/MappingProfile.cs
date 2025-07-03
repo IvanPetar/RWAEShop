@@ -8,7 +8,9 @@ namespace RWAEShopMVC.MappingProfile
     {
         public MappingProfile() 
         {
-            CreateMap<User, UserRegisterVM>().ReverseMap();
+            CreateMap<User, UserRegisterVM>()
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName))
+                .ReverseMap();
             CreateMap<User, UserLoginVM>().ReverseMap();
             CreateMap<UserRegisterVM, User>()
                 .ForMember(dest => dest.RoleId, opt => opt.Ignore());
@@ -23,7 +25,8 @@ namespace RWAEShopMVC.MappingProfile
                 .ForMember(dest => dest.CountryNames, opt => opt.MapFrom(src =>
                  src.CountryProducts.Select(cp => cp.Country.Name).ToList()))
                 .ReverseMap()
-                .ForMember(dest => dest.Category, opt => opt.Ignore());
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ForMember(dest => dest.ImageUrl, opt =>  opt.Ignore());
 
             CreateMap<ProductCategory, CategoryVM>().ReverseMap();
 

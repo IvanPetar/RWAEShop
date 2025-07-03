@@ -1,60 +1,40 @@
-﻿@using RWAEShopMVC.ViewModels
-@model IEnumerable<ProductVM>
+﻿<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold text-primary mb-0">Product List</h2>
+        <a asp-action="Create" class="btn btn-success">+ Add New</a>
+    </div>
 
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Add New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProductDescription)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CategoryName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CountryNames)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductDescription)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CategoryName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CountryNames)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.IdProduct">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.IdProduct">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.IdProduct">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+   
+    <div style="max-height: 600px; overflow-y: auto;">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="d-flex justify-content-center align-items-center" style="height:170px; background:#f3f3f3;">
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" class="card-img-top" style="max-height:160px; width:auto; object-fit:contain;" alt="Product image" />
+                            }
+                            else
+                            {
+                                <img src="~/img/no-image.png" class="card-img-top" style="max-height:160px; width:auto; object-fit:contain;" alt="No image" />
+                            }
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title text-primary mb-2">@item.Name</h6>
+                            <div class="text-muted small mb-2">@item.CategoryName</div>
+                            <div class="fw-semibold mb-1">@item.Price.ToString("0.00") €</div>
+                            <div class="mb-2" style="font-size:0.95em;">@item.ProductDescription</div>
+                        </div>
+                        <div class="card-footer bg-white border-0 d-flex justify-content-between">
+                            <a asp-action="Details" asp-route-id="@item.IdProduct" class="btn btn-sm btn-outline-info">Details</a>
+                            <a asp-action="Edit" asp-route-id="@item.IdProduct" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@item.IdProduct" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

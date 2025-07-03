@@ -15,7 +15,16 @@
         <div class="col-md-5">
             <div class="row">
                 <div class="col-9">
-                    <img src="~/img/majica.jpg" class="img-fluid border rounded" alt="Main product image" style="min-height:350px;max-height:350px;object-fit:contain;background:#f3f3f3;">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" class="img-fluid border rounded" alt="Main product image"
+                             style="min-height:350px;max-height:350px;object-fit:contain;background:#f3f3f3;" />
+                    }
+                    else
+                    {
+                        <img src="~/img/no-image.png" class="img-fluid border rounded" alt="No image"
+                             style="min-height:350px;max-height:350px;object-fit:contain;background:#f3f3f3;" />
+                    }
                 </div>
             </div>
         </div>
@@ -40,7 +49,7 @@
                     }
                 </div>
                 <div class="mt-1">
-                    <strong>Image url:</strong> @Model.ImageUrl
+                    <strong>Image url:</strong> @(Model.ImageUrl?.Length > 0 ? "Yes" : "No")
                 </div>
             </div>
         </div>

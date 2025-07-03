@@ -19,7 +19,6 @@ namespace RWAEshopDAL.Repositories
 
         public void Add(User user)
         {
-            user.RoleId = 2;
             _context.Users.Add(user);
             _context.SaveChanges();
         }
@@ -48,7 +47,10 @@ namespace RWAEshopDAL.Repositories
 
         public User? GetById(int id)
         {
-            return _context.Users.Find(id);
+            return _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefault(u => u.IdUser == id);
+                
         }
 
         public void Update(User user)
