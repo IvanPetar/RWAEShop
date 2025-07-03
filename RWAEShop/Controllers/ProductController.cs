@@ -5,6 +5,7 @@ using RWAEShop.DTOs;
 using RWAEshopDAL.Models;
 using RWAEshopDAL.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RWAEShop.Controllers
 {
@@ -78,7 +79,7 @@ namespace RWAEShop.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult<ProductCreateDto> CreateProduct([FromBody] ProductCreateDto dto)
         {
@@ -107,7 +108,7 @@ namespace RWAEShop.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
 
         public ActionResult<ProductUpdateDto> UpdateProduct(int id, [FromBody] ProductUpdateDto dto)
@@ -137,7 +138,7 @@ namespace RWAEShop.Controllers
                 return StatusCode(500, $"An error occurred while updating product: {ex.Message}");
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
         {

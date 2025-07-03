@@ -4,6 +4,7 @@ using RWAEShop.DTOs;
 using RWAEshopDAL.Models;
 using RWAEshopDAL.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RWAEShop.Controllers
 {
@@ -61,7 +62,7 @@ namespace RWAEShop.Controllers
                 return StatusCode(500, $"An error occurred while retrieving category by id: {ex.Message}");
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult CreateCategory([FromBody] CategoryCreateDto dto)
         {
@@ -85,7 +86,7 @@ namespace RWAEShop.Controllers
             }
 
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public ActionResult<CategoryUpdateDto> UpdateCategory(int id, [FromBody] CategoryUpdateDto dto)
         {
@@ -111,7 +112,7 @@ namespace RWAEShop.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public ActionResult<CategoryUpdateDto> DeleteCategory(int id)
         {
@@ -125,7 +126,7 @@ namespace RWAEShop.Controllers
 
 
 
-                var hasItems = _service.GetAllProducts().Where(p => p.CategoryId == id);
+                var hasItems = _service.GetAllProducts(id,1, int.MaxValue);
                 if (hasItems.Any())
                 {
                     return BadRequest("Cannot delete category with existing products. ");

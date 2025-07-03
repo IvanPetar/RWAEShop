@@ -5,6 +5,7 @@ using RWAEShop.DTOs;
 using RWAEshopDAL.Models;
 using RWAEshopDAL.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RWAEShop.Controllers
 {
@@ -63,7 +64,7 @@ namespace RWAEShop.Controllers
                 return StatusCode(500, $"An error occurred while retrieving country by id: {ex.Message}");
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public ActionResult<CreateCountryDto> CreateCountry([FromBody] CreateCountryDto dto)
         {
@@ -90,7 +91,7 @@ namespace RWAEShop.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
 
         public ActionResult<CountryUpdateDto> UpdateCountry(int id, [FromBody] CountryUpdateDto dto) 
@@ -116,7 +117,7 @@ namespace RWAEShop.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
 
         public ActionResult<CountryResponseDto> DeleteCountry(int id) 

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using RWAEShopMVC.ViewModels;
 
 namespace RWAEShopMVC.Controllers
 {
+    [Authorize]
     public class CategoryController : Controller
     {
         private readonly IMapper _mapper;
@@ -19,7 +21,7 @@ namespace RWAEShopMVC.Controllers
             _categoryService = categoryService;
         }
 
-        // GET: CategoryController
+        [HttpGet]
         public ActionResult Index()
         {
 
@@ -31,15 +33,15 @@ namespace RWAEShopMVC.Controllers
         }
 
 
-        // GET: CategoryController/Create
+        [Authorize(Roles = "Admin")]
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: CategoryController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public ActionResult Create(CategoryVM model)
         {
             if (!ModelState.IsValid) 
@@ -61,7 +63,8 @@ namespace RWAEShopMVC.Controllers
           
         }
 
-        // GET: CategoryController/Edit/5
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
         public ActionResult Edit(int id)
         {
             var category = _categoryService.GetCategory(id);
@@ -72,9 +75,9 @@ namespace RWAEShopMVC.Controllers
             return View(model);
         }
 
-        // POST: CategoryController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public ActionResult Edit(int id, CategoryVM model)
         {
             if (!ModelState.IsValid) 
@@ -95,8 +98,9 @@ namespace RWAEShopMVC.Controllers
             
         }
 
-        // GET: CategoryController/Delete/5
+        
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
             var category = _categoryService.GetCategory(id);
@@ -106,9 +110,10 @@ namespace RWAEShopMVC.Controllers
             return View(model);
         }
 
-        // POST: CategoryController/Delete/5
+        
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public ActionResult DeleteConfirmed(int id)
         {
             var existing = _categoryService.GetCategory(id);

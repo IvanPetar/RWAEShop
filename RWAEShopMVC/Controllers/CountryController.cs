@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RWAEshopDAL.Models;
@@ -7,6 +8,7 @@ using RWAEShopMVC.ViewModels;
 
 namespace RWAEShopMVC.Controllers
 {
+    [Authorize]
     public class CountryController : Controller
     {
         private readonly IMapper _mapper;
@@ -21,7 +23,7 @@ namespace RWAEShopMVC.Controllers
         }
 
 
-        // GET: CountryController
+
         public ActionResult Index()
         {
             var countries = _countryService.GetAllCountry();
@@ -30,16 +32,16 @@ namespace RWAEShopMVC.Controllers
         }
 
 
+        [Authorize(Roles = "Admin")]
 
-        // GET: CountryController/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: CountryController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public ActionResult Create(CountryVM model)
         {
             if (!ModelState.IsValid)
@@ -61,7 +63,8 @@ namespace RWAEShopMVC.Controllers
 
         }
 
-        // GET: CountryController/Edit/5
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
         public ActionResult Edit(int id)
         {
             var country = _countryService.GetCountry(id);
@@ -75,6 +78,7 @@ namespace RWAEShopMVC.Controllers
         // POST: CountryController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public ActionResult Edit(int id, CountryVM model)
         {
             if (!ModelState.IsValid)
@@ -94,7 +98,9 @@ namespace RWAEShopMVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: CountryController/Delete/5
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
             var country = _countryService.GetCountry(id);
@@ -107,6 +113,7 @@ namespace RWAEShopMVC.Controllers
         // POST: CountryController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public ActionResult DeleteConfirmed(int id)
         {
             var existing = _countryService.GetCountry(id);

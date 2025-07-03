@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RWAEShopMVC.Controllers
 {
+    [Authorize]
     public class UserController : Controller
     {
         private readonly IUserService _userService;
@@ -24,7 +25,7 @@ namespace RWAEShopMVC.Controllers
             _mapper = mapper;
             _orderService = orderService;
         }
-
+        [Authorize(Roles = "Admin")]
         public ActionResult Index()
         {
 
@@ -34,7 +35,7 @@ namespace RWAEShopMVC.Controllers
             var model = _mapper.Map<List<UserRegisterVM>>(users);
             return View(model);
         }
-        [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult Details(int id)
         {
             var user = _userService.GetUser(id);
@@ -57,7 +58,7 @@ namespace RWAEShopMVC.Controllers
             return View(viewModel);
         }
 
-
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
             var user = _userService.GetUser(id);
@@ -69,6 +70,7 @@ namespace RWAEShopMVC.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public ActionResult DeleteConfirmed(int IdUser)
         {
             var user = _userService.GetUser(IdUser);
@@ -91,7 +93,7 @@ namespace RWAEShopMVC.Controllers
             return RedirectToAction("Index");
         }
 
-
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Login(string returnUrl)
         {
@@ -101,6 +103,7 @@ namespace RWAEShopMVC.Controllers
             };
             return View();
         }
+        [AllowAnonymous]
         [HttpPost]
         public IActionResult Login(UserLoginVM loginVM) 
         {
@@ -153,6 +156,8 @@ namespace RWAEShopMVC.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Logout()
         {
@@ -164,12 +169,15 @@ namespace RWAEShopMVC.Controllers
             
             return RedirectToAction("Index", "Home");
         }
-       
+
+        [AllowAnonymous]
+        [HttpGet]
         public IActionResult Register() 
         {
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public IActionResult Register(UserRegisterVM userVM) 
         {
@@ -285,7 +293,12 @@ namespace RWAEShopMVC.Controllers
                 });
             }
         }
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult Forbidden()
+        {
+            return View();
+        }
 
-       
     }
 }

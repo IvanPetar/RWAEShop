@@ -11,6 +11,7 @@ using RWAEShopMVC.ViewModels;
 
 namespace RWAEShopMVC.Controllers
 {
+    [Authorize]
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
@@ -27,8 +28,6 @@ namespace RWAEShopMVC.Controllers
         }
 
 
-        // GET: ProductController
-        [Authorize(Roles= "Admin")]
         public ActionResult Index(string? q, int? categoryId, int page = 1, int pageSize = 4)
         {
             // 1. Dohvati queryable s relacijama
@@ -74,7 +73,6 @@ namespace RWAEShopMVC.Controllers
         }
 
 
-        // GET: ProductController/Details/5
         public ActionResult Details(int id)
         {
             var item = _productService.GetProduct(id);
@@ -86,7 +84,7 @@ namespace RWAEShopMVC.Controllers
             return View(model);
         }
 
-        // GET: ProductController/Create
+        [Authorize(Roles = "Admin")]
         public ActionResult Create()
         {
             ViewBag.CategoryId = new SelectList(_categoryService.GetAllCategory(), "IdCategory", "Name");
@@ -98,6 +96,7 @@ namespace RWAEShopMVC.Controllers
         // POST: ProductController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(ProductVM model)
         {
             
@@ -133,8 +132,7 @@ namespace RWAEShopMVC.Controllers
 
         }
 
-        // GET: ProductController/Edit/5
-        [HttpGet]
+        [Authorize(Roles = "Admin")]
         public ActionResult Edit(int id)
         {
             var product = _productService.GetProduct(id);
@@ -153,9 +151,10 @@ namespace RWAEShopMVC.Controllers
             return View(model);
         }
 
-        // POST: ProductController/Edit/5
+  
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, ProductVM model)
         {
 
@@ -203,7 +202,7 @@ namespace RWAEShopMVC.Controllers
 
         }
 
-        // GET: ProductController/Delete/5
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
             var item = _productService.GetProduct(id);
@@ -223,6 +222,7 @@ namespace RWAEShopMVC.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Delete")]
+        [Authorize(Roles = "Admin")]
         public ActionResult DeleteConfirmed(int id)
         {
             try

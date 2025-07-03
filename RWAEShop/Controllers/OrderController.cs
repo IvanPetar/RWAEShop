@@ -5,6 +5,7 @@ using RWAEshopDAL.Models;
 using RWAEShop.DTOs;
 using RWAEshopDAL.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace RWAEShop.Controllers
 {
@@ -22,7 +23,7 @@ namespace RWAEShop.Controllers
             _productService = productService;
             _mapper = mapper;
         }
-
+        [Authorize]
         [HttpGet]
         public ActionResult<IEnumerable<OrderResponseDto>> GetAllOrders()
         {
@@ -40,7 +41,7 @@ namespace RWAEShop.Controllers
             }
         }
 
-
+        [Authorize]
         [HttpGet("{id}")]
         public ActionResult<OrderResponseDto> GetOrderById(int id)
         {
@@ -102,6 +103,7 @@ namespace RWAEShop.Controllers
                 return StatusCode(500, $"Error while creating order: {ex.Message}");
             }
         }
+        [Authorize]
         [HttpPut("{orderId}/items/{productId}")]
         public ActionResult<OrderResponseDto> UpdateOrderItem(int orderId, int productId, [FromBody] UpdateOrderItemDto dto)
         {
@@ -150,7 +152,7 @@ namespace RWAEShop.Controllers
             }
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public ActionResult<OrderResponseDto> DeleteOrder(int id)
         {
