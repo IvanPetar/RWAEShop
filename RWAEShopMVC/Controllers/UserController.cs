@@ -15,12 +15,14 @@ namespace RWAEShopMVC.Controllers
     public class UserController : Controller
     {
         private readonly IUserService _userService;
+        private readonly IOrderService _orderService;
         private readonly IMapper _mapper;
 
-        public UserController(IUserService userService, IMapper mapper)
+        public UserController(IUserService userService, IMapper mapper, IOrderService orderService)
         {
             _userService = userService;
             _mapper = mapper;
+            _orderService = orderService;
         }
 
         public ActionResult Index()
@@ -32,6 +34,29 @@ namespace RWAEShopMVC.Controllers
             var model = _mapper.Map<List<UserRegisterVM>>(users);
             return View(model);
         }
+        [HttpGet]
+        public IActionResult Details(int id)
+        {
+            var user = _userService.GetUser(id);
+            if (user == null) return NotFound();
+
+            var model = _mapper.Map<UserRegisterVM>(user);
+
+            var orders = _orderService.GetAllOrders()
+                .Where(o => o.UserId == id)
+                .ToList();
+            var orderVMs = _mapper.Map<List<OrderVM>>(orders);
+
+            
+            var viewModel = new UserDetailsPageVM
+            {
+                User = model,
+                Orders = orderVMs
+            };
+
+            return View(viewModel);
+        }
+
 
         public ActionResult Delete(int id)
         {
@@ -46,17 +71,24 @@ namespace RWAEShopMVC.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int IdUser)
         {
-            try
+            var user = _userService.GetUser(IdUser);
+            if (user == null)
+                return NotFound();
+
+       
+            var hasOrders = _orderService.GetAllOrders().Any(o => o.UserId == IdUser);
+
+            if (hasOrders)
             {
-                _userService.DeleteUser(IdUser);
-            }
-            catch (Exception ex)
-            {
-                
-                return NotFound(ex.Message);
+                ViewBag.DeleteError = "Not possible to delete user while having order!";
+                var model = _mapper.Map<UserRegisterVM>(user);
+                return View("Delete", model);
             }
 
-            return RedirectToAction(nameof(Index));
+            
+            _userService.DeleteUser(IdUser);
+            TempData["DeleteSuccess"] = "User successfully deleted.";
+            return RedirectToAction("Index");
         }
 
 

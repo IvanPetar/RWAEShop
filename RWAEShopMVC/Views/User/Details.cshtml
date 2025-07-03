@@ -1,0 +1,62 @@
+﻿@using RWAEShopMVC.ViewModels
+@model UserDetailsPageVM
+
+<h2>User Details</h2>
+<dl class="row">
+    <dt>Name</dt>
+    <dd>@Model.User.Name @Model.User.LastName</dd>
+    <dt>Email</dt>
+    <dd>@Model.User.Email</dd>
+
+</dl>
+
+<hr />
+<h3>User Orders</h3>
+@if (Model.Orders.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order Id</th>
+                <th>Date</th>
+                <th>Products</th>
+                <th>Quantity</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.Orders)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.OrderDate.ToString("g")</td>
+                    <td>
+                        <ul class="mb">
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <li>
+
+                                    <span>@item.Name</span>
+                                </li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        @foreach (var item in order.OrderItems)
+                        {
+                            <li>
+
+                                <span>@item.Quantity</span>
+                            </li>
+                        }
+                    </td>
+                    <td>@order.TotalAmount.ToString("0.00") €</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">This user has no orders.</div>
+}

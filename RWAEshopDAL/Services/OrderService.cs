@@ -52,5 +52,10 @@ namespace RWAEshopDAL.Services
                 throw new ArgumentException("Item bot found in cart/order");
             }
         }
+
+        public void RemoveOrderItem(int id, int productId)
+        {
+            _orderRepository.RemoveOrderItem(id, productId);
+        }
     }
 }

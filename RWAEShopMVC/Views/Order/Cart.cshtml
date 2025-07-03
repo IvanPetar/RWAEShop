@@ -1,0 +1,70 @@
+﻿@model RWAEShopMVC.ViewModels.OrderVM
+
+<div class="container mt-4">
+    <h2>My Cart</h2>
+    @if (Model?.OrderItems == null || !Model.OrderItems.Any())
+    {
+        <div class="alert alert-info">Your cart is empty.</div>
+    }
+    else
+    {
+        <div>
+            <strong>User:</strong> @User.Identity.Name <br />
+            <strong>Order date:</strong> @Model.OrderDate.ToString("g")
+        </div>
+        <table class="table table-bordered table-hover mt-3">
+            <thead class="thead-light">
+                <tr>
+                    <th>Image</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price (€/unit)</th>
+                    <th>Subtotal</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" style="max-width:60px;" />
+                            }
+                        </td>
+                        <td>@item.Name</td>
+                        <td>
+                            <form asp-action="UpdateQuantity" method="post" style="display:inline;">
+                                <input type="hidden" name="orderId" value="@Model.OrderId" />
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <input type="number" name="quantity" value="@item.Quantity" min="1" style="width:70px;" />
+                                <button type="submit" class="btn btn-outline-primary btn-sm">Update</button>
+                            </form>
+                        </td>
+                        <td>@item.Price.ToString("0.00") €</td>
+                        <td>@(item.Quantity * item.Price) €</td>
+                        <td>
+                            <form asp-action="RemoveItem" method="post" style="display:inline;">
+                                <input type="hidden" name="orderId" value="@Model.OrderId" />
+                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                <strong>Total:</strong>
+                <span class="h5 text-primary ml-2">@Model.TotalAmount.ToString("0.00") €</span>
+            </div>
+            <form asp-action="ClearCart" asp-controller="Order" method="post" class="mb-0">
+                <input type="hidden" name="orderId" value="@Model.OrderId" />
+                <button type="submit" class="btn btn-danger">Clear Cart</button>
+            </form>
+        </div>
+    }
+</div>

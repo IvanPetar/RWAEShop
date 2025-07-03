@@ -1,4 +1,9 @@
-﻿@using RWAEShopMVC.ViewModels
+﻿@using System.Security.Claims
+@{
+    var role = ViewContext.HttpContext.User?.FindFirst(ClaimTypes.Role)?.Value;
+}
+
+@using RWAEShopMVC.ViewModels
 @model ProductVM
 
 @{
@@ -18,12 +23,12 @@
                     @if (!string.IsNullOrEmpty(Model.ImageUrl))
                     {
                         <img src="@Model.ImageUrl" class="img-fluid border rounded" alt="Main product image"
-                             style="min-height:350px;max-height:350px;object-fit:contain;background:#f3f3f3;" />
+                        style="min-height:350px;max-height:350px;object-fit:contain;background:#f3f3f3;" />
                     }
                     else
                     {
                         <img src="~/img/no-image.png" class="img-fluid border rounded" alt="No image"
-                             style="min-height:350px;max-height:350px;object-fit:contain;background:#f3f3f3;" />
+                        style="min-height:350px;max-height:350px;object-fit:contain;background:#f3f3f3;" />
                     }
                 </div>
             </div>
@@ -39,7 +44,10 @@
                     <strong>In Stock:</strong> @(Model.Quantity > 0 ? "Yes" : "No")
                 </div>
                 <div class="mt-1">
-                    <strong>Quantity:</strong> @Model.Quantity
+                    @if (role == "Admin")
+                    {
+                        <strong>Quantity:</strong> @Model.Quantity
+                    }
                 </div>
                 <div class="mt-1">
                     <strong>Country:</strong>
@@ -66,8 +74,16 @@
     </div>
 
     <div class="mt-4">
-        <a asp-action="Edit" asp-route-id="@Model?.IdProduct" class="btn btn-primary">Edit</a>
-        <a asp-action="Index" class="btn btn-outline-secondary ml-2">Back to Products</a>
+        @if (role == "Admin")
+        {
+            <a asp-action="Edit" asp-route-id="@Model?.IdProduct" class="btn btn-primary">Edit</a>
+            <a asp-action="Index" class="btn btn-outline-secondary ml-2">Back to Products</a>
+        }
+        else
+        {
+            <a asp-action="Shop" class="btn btn-outline-secondary ml-2">Back to Products</a>
+        }
+
     </div>
 </div>
 

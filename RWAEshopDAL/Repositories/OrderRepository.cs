@@ -40,19 +40,43 @@ namespace RWAEshopDAL.Repositories
 
         public IEnumerable<Order> GetAll()
         {
-            return _context.Orders.Include(oi => oi.OrderItems).ToList();
+            return _context.Orders
+                .Include(o=> o.User)
+                .Include(oi => oi.OrderItems)
+                .ThenInclude(oi=> oi.Product)
+                .ToList();
         }
 
         public Order? GetById(int id)
         {
-            return _context.Orders.Include(oi => oi.OrderItems).FirstOrDefault(oi => oi.IdOrder == id);
+            return _context.Orders.Include(o => o.User)
+            .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
+            .FirstOrDefault(o => o.IdOrder == id);
         }
 
         public void Update(Order order) {
             _context.Orders.Update(order);
             _context.SaveChanges();
         }
-        
-      
+
+        public void RemoveOrderItem(int orderId, int productId)
+        {
+            var order = _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefault(o => o.IdOrder == orderId);
+
+            if (order != null)
+            {
+                var item = order.OrderItems.FirstOrDefault(i => i.ProductId == productId);
+                if (item != null)
+                {
+                    order.OrderItems.Remove(item);
+                    _context.OrderItems.Remove(item);
+                    _context.SaveChanges();
+                }
+            }
+        }
+
     }
 }

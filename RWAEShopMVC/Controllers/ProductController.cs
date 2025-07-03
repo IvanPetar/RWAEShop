@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -27,6 +28,7 @@ namespace RWAEShopMVC.Controllers
 
 
         // GET: ProductController
+        [Authorize(Roles= "Admin")]
         public ActionResult Index()
         {
 
@@ -201,6 +203,24 @@ namespace RWAEShopMVC.Controllers
                 ModelState.AddModelError("", "An error occurred while deleting the product.");
                 return View(model);
             }
+        }
+
+        [HttpGet]
+        public IActionResult Shop()
+        {
+            var products = _productService.GetAllProducts();
+            var model = _mapper.Map<List<ProductVM>>(products);
+            return View(model);
+        }
+        [HttpGet]
+        public IActionResult ShopDetails(int id)
+        {
+            var product = _productService.GetProduct(id);
+            if (product == null)
+                return NotFound();
+
+            var model = _mapper.Map<ProductVM>(product);
+            return View(model);
         }
     }
 }

@@ -15,5 +15,7 @@ namespace RWAEshopDAL.Repositories
         void Update(User user);
         void Delete(int id);
 
+
+
     }
 }

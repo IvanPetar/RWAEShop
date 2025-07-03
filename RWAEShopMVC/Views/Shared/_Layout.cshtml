@@ -45,11 +45,23 @@
                             </li>
                             <li class="nav-item"><a class="nav-link text-dark" asp-controller="User" asp-action="Index">Users</a></li>
                         }
+                        else if (isLoggedIn && role == "User")
+                        {
+                            <li class="nav-item"><a class="nav-link text-dark" asp-controller="Product" asp-action="Shop">Shop</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Order" asp-action="Cart">
+                                    <i class="bi bi-cart"></i> Cart
+                                </a>
+                            </li>
+
+                            
+                        }
                     </ul>
                     <!-- Desna strana -->
                     <ul class="navbar-nav ms-auto">
                         @if (!isLoggedIn)
                         {
+
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
                             </li>
@@ -67,6 +79,7 @@
                                     </span>
                                 </span>
                             </li>
+                           
                             <li class="nav-item"><a class="nav-link text-dark" asp-controller="User" asp-action="Profile">Profile</a></li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Logout">Logout</a>
