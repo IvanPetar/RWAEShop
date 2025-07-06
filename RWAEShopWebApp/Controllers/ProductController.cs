@@ -107,7 +107,18 @@ namespace RWAEShopWebApp.Controllers
                     return View(model);
                 }
 
-            if(model.ImageFile != null && model.ImageFile.Length > 0)
+            bool productExists = _productService.GetAllQueryable()
+                .Any(p => p.Name != null && p.Name.ToLower() == model.Name.ToLower());
+
+            if (productExists)
+            {
+                ModelState.AddModelError("Name", "Product with this name already exist!");
+                ViewBag.CategoryId = new SelectList(_categoryService.GetAllCategory(), "IdCategory", "Name", model.CategoryId);
+                ViewBag.Countries = new MultiSelectList(_countryService.GetAllCountry(), "IdCountry", "Name", model.CountryNames);
+                return View(model);
+            }
+
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
                 using var ms = new MemoryStream();
                 await model.ImageFile.CopyToAsync(ms);
@@ -115,8 +126,7 @@ namespace RWAEShopWebApp.Controllers
                 model.ImageUrl = $"data:{model.ImageFile.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
             }
 
-
-                var product = _mapper.Map<Product>(model);
+            var product = _mapper.Map<Product>(model);
 
                 _productService.CreateProduct(product);
 
@@ -138,6 +148,7 @@ namespace RWAEShopWebApp.Controllers
             var product = _productService.GetProduct(id);
             if (product == null)
                 return NotFound();
+
 
             var model = _mapper.Map<ProductVM>(product);
 
@@ -165,10 +176,21 @@ namespace RWAEShopWebApp.Controllers
                 return View(model);
             }
 
+            bool productExists = _productService.GetAllQueryable()
+               .Any(p => p.Name != null && p.Name.ToLower() == model.Name.ToLower());
+
+            if (productExists)
+            {
+                ModelState.AddModelError("Name", "Product with this name already exist!");
+                ViewBag.CategoryId = new SelectList(_categoryService.GetAllCategory(), "IdCategory", "Name", model.CategoryId);
+                ViewBag.Countries = new MultiSelectList(_countryService.GetAllCountry(), "IdCountry", "Name", model.CountryNames);
+                return View(model);
+            }
 
             var existingProduct = _productService.GetProduct(id);
             if (existingProduct == null)
                 return NotFound();
+
 
             _mapper.Map(model, existingProduct);
 

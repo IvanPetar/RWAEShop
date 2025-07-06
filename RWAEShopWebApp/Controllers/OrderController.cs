@@ -114,7 +114,7 @@ namespace RWAEShopWebApp.Controllers
                         _productService.UpdateProduct(product);
                     }
                 }
-
+                
                 _orderService.DeleteOrder(orderId);
             }
 
@@ -125,8 +125,8 @@ namespace RWAEShopWebApp.Controllers
         [HttpPost]
         public IActionResult RemoveItem(int orderId, int productId)
         {
-           
-            var item = _orderService.GetOrder(orderId)?.OrderItems.FirstOrDefault(i => i.ProductId == productId);
+            var order = _orderService.GetOrder(orderId);
+            var item = order?.OrderItems.FirstOrDefault(i => i.ProductId == productId);
             if (item != null)
             {
                 var product = _productService.GetProduct(productId);
@@ -137,6 +137,14 @@ namespace RWAEShopWebApp.Controllers
                 }
 
                 _orderService.RemoveOrderItem(orderId, productId);
+
+                
+                order = _orderService.GetOrder(orderId); 
+                if (order != null)
+                {
+                    order.TotalAmount = order.OrderItems.Sum(i => i.Quantity * i.Price);
+                    _orderService.UpdateOrder(order);
+                }
             }
 
             return RedirectToAction("Cart");

@@ -45,7 +45,7 @@ namespace RWAEShopWebApp.Controllers
             var model = _mapper.Map<UserRegisterVM>(user);
 
             var orders = _orderService.GetAllOrders()
-                .Where(o => o.UserId == id)
+                .Where(o => o.UserId == id && o.OrderItems != null && o.OrderItems.Any())
                 .ToList();
             var orderVMs = _mapper.Map<List<OrderVM>>(orders);
 

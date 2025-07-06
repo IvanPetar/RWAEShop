@@ -1,4 +1,6 @@
-﻿namespace RWAEShopWebApp.ViewModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RWAEShopWebApp.ViewModels
 {
     public class OrderItemVM
     {
