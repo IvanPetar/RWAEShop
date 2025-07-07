@@ -78,5 +78,11 @@ namespace RWAEshopDAL.Repositories
             }
         }
 
+        public bool IsProductInAnyOrder(int productId)
+        {
+            return _context.OrderItems.Any(oi => oi.ProductId == productId);
+        }
+
+
     }
 }

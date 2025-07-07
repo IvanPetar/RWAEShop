@@ -43,6 +43,9 @@ namespace RWAEShopWebApp.MappingProfile
 
             CreateMap<Country, CountryVM>().ReverseMap();
 
+
+            CreateMap<Log, LogViewModel>();
+            CreateMap<LogViewModel, Log>();
         }
     }
 }

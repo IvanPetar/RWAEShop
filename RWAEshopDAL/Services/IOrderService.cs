@@ -16,5 +16,7 @@ namespace RWAEshopDAL.Services
         void UpdateOrderItem(int id, int productId, int quantity);
         void RemoveOrderItem(int id, int productId);
         void DeleteOrder(int id);
+
+        bool IsProductInAnyOrder(int productId);
     }
 }

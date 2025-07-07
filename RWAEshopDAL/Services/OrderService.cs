@@ -57,5 +57,10 @@ namespace RWAEshopDAL.Services
         {
             _orderRepository.RemoveOrderItem(id, productId);
         }
+
+        public bool IsProductInAnyOrder(int productId)
+        {
+            return _orderRepository.IsProductInAnyOrder(productId);
+        }
     }
 }

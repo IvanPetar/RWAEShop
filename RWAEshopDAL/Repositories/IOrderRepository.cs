@@ -16,6 +16,8 @@ namespace RWAEshopDAL.Repositories
         void Delete(int id);
 
         void RemoveOrderItem(int id, int productId);
+
+        bool IsProductInAnyOrder(int productId);
     
     }
 }

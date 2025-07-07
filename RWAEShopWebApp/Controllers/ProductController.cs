@@ -18,13 +18,16 @@ namespace RWAEShopWebApp.Controllers
         private readonly IMapper _mapper;
         private readonly ICategoryService _categoryService;
         private readonly ICountryService _countryService;
-
-        public ProductController(IProductService productService,ICategoryService categoryService, ICountryService countryService, IMapper mapper)
+        private readonly IOrderService _orderService;
+        private readonly ILogService _logService;
+        public ProductController(IProductService productService,ICategoryService categoryService, ICountryService countryService, IMapper mapper, IOrderService orderService, ILogService logService)
         {
             _productService = productService;
             _mapper = mapper;
             _categoryService = categoryService;
             _countryService = countryService;
+            _orderService = orderService;
+            _logService = logService;
         }
 
 
@@ -128,7 +131,7 @@ namespace RWAEShopWebApp.Controllers
 
             var product = _mapper.Map<Product>(model);
 
-                _productService.CreateProduct(product);
+            _productService.CreateProduct(product);
 
             foreach (var countryStr in model.CountryNames)
             {
@@ -138,6 +141,8 @@ namespace RWAEShopWebApp.Controllers
                 }
             }
 
+
+            _logService.Log($"Product item '{product.Name}' created by {User.Identity?.Name}.", 1);
             return RedirectToAction(nameof(Index));
 
         }
@@ -218,10 +223,18 @@ namespace RWAEShopWebApp.Controllers
             }
 
             _productService.UpdateProduct(existingProduct);
-
+            _logService.Log($"Product item ID={id} updated by {User.Identity?.Name}.", 1);
             return RedirectToAction(nameof(Index));
 
 
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public JsonResult CheckProductInOrder(int id)
+        {
+            bool exists = _orderService.IsProductInAnyOrder(id);
+            return Json(new { inOrder = exists });
         }
 
         [Authorize(Roles = "Admin")]
@@ -250,7 +263,7 @@ namespace RWAEShopWebApp.Controllers
             try
             {
                 _productService.DeleteProduct(id);
-               
+                _logService.Log($"Product item ID={id} deleted by {User.Identity?.Name}.", 1);
                 return RedirectToAction(nameof(Index));
             }
             catch

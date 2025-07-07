@@ -13,7 +13,9 @@ namespace RWAEShopWebApi.Profiles
             CreateMap<ProductCategory, CategoryCreateDto>().ReverseMap();
             CreateMap<ProductCategory, CategoryUpdateDto>().ReverseMap();
 
-            CreateMap<Country, CountryResponseDto>().ReverseMap();
+            CreateMap<Product, ProductResponseDto>()
+                .ForMember(dest => dest.CountryNames, opt => opt.MapFrom(src => src.Name))
+                .ReverseMap();
             CreateMap<Country, CountryUpdateDto>().ReverseMap();
             CreateMap<Country, CreateCountryDto>().ReverseMap();
 
@@ -31,6 +33,11 @@ namespace RWAEShopWebApi.Profiles
 
             CreateMap<User, UserLoginDto>().ReverseMap();
             CreateMap<User, UserRegisterDto>().ReverseMap();
+
+            CreateMap<Log, LogResponseDto>();
+            CreateMap<LogCreateDto, Log>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.Timestamp, opt => opt.Ignore());
         }
     }
 }
