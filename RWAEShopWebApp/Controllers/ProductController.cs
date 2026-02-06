@@ -33,30 +33,27 @@ namespace RWAEShopWebApp.Controllers
 
         public ActionResult Index(string? q, int? categoryId, int page = 1, int pageSize = 4)
         {
-            // 1. Dohvati queryable s relacijama
+    
             var query = _productService.GetAllQueryable();
 
-            // 2. Search
             if (!string.IsNullOrWhiteSpace(q))
                 query = query.Where(p => p.Name != null && EF.Functions.Like(p.Name, $"%{q}%"));
 
-            // 3. Filtriranje po kategoriji
+        
             if (categoryId.HasValue)
                 query = query.Where(p => p.CategoryId == categoryId.Value);
 
-            // 4. Ukupno za paginaciju
+      
             var totalCount = query.Count();
 
-            // 5. Paginacija
             var pagedProducts = query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
-            // 6. Mapping u ViewModel
+     
             var model = _mapper.Map<List<ProductVM>>(pagedProducts);
 
-            // 7. Popuni kategorije za dropdown
             var categories = _categoryService.GetAllCategory()
                 .Select(c => new SelectListItem
                 {
@@ -65,7 +62,6 @@ namespace RWAEShopWebApp.Controllers
                 }).ToList();
             ViewBag.CategoryList = new SelectList(categories, "Value", "Text");
 
-            // 8. Podaci za paginaciju/filter
             ViewData["CurrentFilter"] = q;
             ViewData["CurrentCategory"] = categoryId;
             ViewData["TotalPages"] = (int)Math.Ceiling((double)totalCount / pageSize);
@@ -96,7 +92,6 @@ namespace RWAEShopWebApp.Controllers
             return View();
         }
 
-        // POST: ProductController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -249,11 +244,10 @@ namespace RWAEShopWebApp.Controllers
                 .Select(cp => cp.Country.Name)
                 .ToList() ?? new List<string>();
 
-            // Prikaži potvrdu za brisanje
             return View(model);
         }
 
-        // POST: ProductController/Delete/5
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Delete")]

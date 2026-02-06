@@ -37,7 +37,7 @@
                     </div>
                 </div>
 
-                <!-- Prikaz trenutne slike ako postoji -->
+      
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Current Image</label><br />
                     @if (!string.IsNullOrEmpty(Model.ImageUrl))
@@ -50,7 +50,6 @@
                     }
                 </div>
 
-                <!-- Polje za upload nove slike-->
                 <div class="mb-3">
                     <label asp-for="ImageFile" class="form-label fw-semibold">Upload New Image</label>
                     <input asp-for="ImageFile" class="form-control form-control-lg" type="file" accept="image/*" />

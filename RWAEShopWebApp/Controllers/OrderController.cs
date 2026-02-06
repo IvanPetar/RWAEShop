@@ -33,11 +33,10 @@ namespace RWAEShopWebApp.Controllers
             var user = _userService.GetAllUsers().FirstOrDefault(u => u.Username == username);
             if (user == null) return Unauthorized();
 
-            // check is there open order for user
             var order = _orderService.GetAllOrders()
                 .FirstOrDefault(o => o.UserId == user.IdUser);
 
-            // create new order if not exists
+           
             if (order == null)
             {
                 order = new Order
@@ -50,7 +49,6 @@ namespace RWAEShopWebApp.Controllers
                 _orderService.CreateOrder(order);
             }
 
-            // check is there any products in base
             var existingItem = order.OrderItems.FirstOrDefault(oi => oi.ProductId == productId);
             var product = _productService.GetProduct(productId);
             if (product == null || product.Quantity < quantity) return BadRequest("Not enough products.");
@@ -69,20 +67,19 @@ namespace RWAEShopWebApp.Controllers
                 });
             }
 
-            // Smanji zalihu
+    
             product.Quantity -= quantity;
             _productService.UpdateProduct(product);
 
-            // Ažuriraj total
+  
             order.TotalAmount = order.OrderItems.Sum(x => x.Quantity * x.Price);
 
-            // Spremi order
             _orderService.UpdateOrder(order);
 
             return RedirectToAction("Cart");
         }
 
-        // Prikaz košarice
+
         public IActionResult Cart()
         {
             var username = User.Identity.Name;
@@ -97,14 +94,14 @@ namespace RWAEShopWebApp.Controllers
             return View(orderVm);
         }
 
-        // Očisti košaricu
+
         [HttpPost]
         public IActionResult ClearCart(int orderId)
         {
             var order = _orderService.GetOrder(orderId);
             if (order != null)
             {
-                // Vrati količine proizvoda
+
                 foreach (var item in order.OrderItems)
                 {
                     var product = _productService.GetProduct(item.ProductId);

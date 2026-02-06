@@ -79,7 +79,7 @@ namespace RWAEShopWebApp.Controllers
                 return NotFound();
 
        
-            var hasOrders = _orderService.GetAllOrders().Any(o => o.UserId == IdUser);
+            var hasOrders = _orderService.GetAllOrders().Any(o => o.UserId == IdUser && o.OrderItems.Any());
 
             if (hasOrders)
             {

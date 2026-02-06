@@ -75,7 +75,7 @@ namespace RWAEShopWebApp.Controllers
             return View(model);
         }
 
-        // POST: CountryController/Edit/5
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -110,7 +110,6 @@ namespace RWAEShopWebApp.Controllers
             return View(model);
         }
 
-        // POST: CountryController/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
